@@ -268,3 +268,5 @@ fabric.properties
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/codeStyles/Project.xml
