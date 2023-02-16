@@ -1,6 +1,8 @@
-name: Push and Pull Request Action
+name: Unit and Linter Test Job
 
-on: [push, pull_request]
+on:
+  workflow_call:
+
 jobs:
   Test:
     runs-on: ubuntu-latest
