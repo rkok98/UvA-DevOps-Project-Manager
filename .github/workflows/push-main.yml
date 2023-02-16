@@ -1,6 +1,17 @@
 name: Push Main Job
 
-on: push
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   Test:
     uses: ./.github/workflows/test-job.yml
+  Deploy:
+    uses: ./.github/workflows/deploy-job.yml
+    needs:
+      - Test
+    secrets: inherit
+    with:
+      env: 'prod'
