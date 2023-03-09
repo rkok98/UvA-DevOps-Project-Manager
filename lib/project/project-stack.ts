@@ -55,7 +55,7 @@ export class ProjectConstruct extends Construct {
       runtime: Runtime.NODEJS_18_X,
       entry: path.join(
         __dirname,
-        '/../src/projects/handlers/create-project-handler.ts'
+        '/../../src/projects/handlers/create-project-handler.ts'
       ),
     });
 

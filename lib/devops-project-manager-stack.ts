@@ -2,6 +2,7 @@ import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { ProjectConstruct } from './project/project-stack';
+import { UserStack } from './user/user-stack';
 
 export class DevopsProjectManagerStack extends Stack {
   public readonly api: RestApi;
@@ -9,11 +10,16 @@ export class DevopsProjectManagerStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
+    const region = process.env.CDK_DEFAULT_REGION ?? 'eu-west-1';
+
     this.api = this.createAPIGateWay('project-management-api');
+
     new ProjectConstruct(this, 'project-construct', {
       api: this.api,
-      region: 'eu-west-1',
+      region,
     });
+
+    new UserStack(this, 'user-construct');
   }
 
   private createAPIGateWay(id: string): RestApi {
