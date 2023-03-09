@@ -15,3 +15,4 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 ## Useful urls
 - AWS SDK: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/
+- AWS CDK: https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html
