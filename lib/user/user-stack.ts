@@ -41,13 +41,6 @@ export class UserStack extends Construct {
       autoVerify: {
         email: true,
       },
-      passwordPolicy: {
-        minLength: 8,
-        requireLowercase: true,
-        requireDigits: false,
-        requireSymbols: false,
-        requireUppercase: true,
-      },
       userVerification: {
         emailSubject: 'Verify your email for our Project Management App!',
         emailBody:
