@@ -1,3 +1,4 @@
+// Access the full CDK project environment.
 import { Construct } from 'constructs';
 
 export const getEnv = (scope: Construct, name: string): string => {
