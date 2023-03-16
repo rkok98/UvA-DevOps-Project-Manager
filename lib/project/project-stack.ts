@@ -28,12 +28,13 @@ export class ProjectConstruct extends Construct {
   public readonly table: Table;
   public readonly createProjectHandler: NodejsFunction;
   public readonly getProjectHandler: NodejsFunction;
+  public readonly deleteProjectHandler: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: ProjectStackProps) {
     super(scope, id);
 
     const projectsResource = props.api.root.addResource('projects');
-    const projectsIdResource = projectsResource.addResource('{project_id}');
+    const projectsIdResource = projectsResource.addResource('{project_id}')
 
     this.table = this.createTable('project-table');
 
@@ -49,6 +50,13 @@ export class ProjectConstruct extends Construct {
       'get-project-handler',
       projectsIdResource,
       this.table
+    );
+
+    this.deleteProjectHandler = this.createDeleteProjectHandler(
+        'delete-project-handler',
+        props.api,
+        projectsIdResource,
+        this.table
     );
   }
 
@@ -128,13 +136,7 @@ export class ProjectConstruct extends Construct {
 
     table.grantReadWriteData(handler);
 
-    projectsResource.addMethod('DELETE', new LambdaIntegration(handler), {
-      requestValidatorOptions: {
-        validateRequestBody: true,
-      },
-      requestModels: {
-      },
-    });
+    projectsResource.addMethod('DELETE', new LambdaIntegration(handler), {});
 
     return handler;
   }

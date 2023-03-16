@@ -2,7 +2,7 @@
 // Table of projects in the DB.
 // Handling of creating, getting, updating, and deleting projects in the table.
 import { Project } from '../models/project';
-import { DeleteTableCommand, DynamoDBClient,
+import { DeleteItemCommand, DynamoDBClient,
   GetItemCommand,
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
@@ -44,9 +44,18 @@ export class DynamodbProjectRepository implements ProjectRepository {
 
   // Deletes a specific existing project from table
   async deleteProject(id: string): Promise<void> {
-    const deleteRequest = new DeleteTableCommand({
+    const deleteRequest = new DeleteItemCommand(
+        {
+          TableName: this.tableName,
+          Key: {
+            id: {
+              S: id
+            }
+          }
+        }
+    );
 
-    })
+    return this.client.send(deleteRequest).then();
   }
 
   // TODO: Update project 1) title, 2) description

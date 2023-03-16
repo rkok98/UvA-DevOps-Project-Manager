@@ -29,12 +29,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         );
     }
 
-    if (!event.body) {
-        logger.error('Request body cannot be empty');
-        return HttpResponse.badRequest('Request body cannot be empty');
+    const projectId = event.pathParameters?.project_id;
+    if (!projectId) {
+        logger.error('Project id cannot be empty');
+        return HttpResponse.badRequest('Project id cannot be empty');
     }
-
-    const project = JSON.parse(event.body) as Project;
 
     const projectRepository: ProjectRepository = new DynamodbProjectRepository(
         region,
@@ -42,7 +41,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     );
 
     return projectRepository
-        .deleteProject(project.id)
+        .deleteProject(projectId)
         .then(() => HttpResponse.deleted())
         .catch((error: Error) => {
             logger.error(error.message);
