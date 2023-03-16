@@ -14,7 +14,7 @@ import {
   Model, RequestValidator,
   RestApi,
 } from 'aws-cdk-lib/aws-apigateway';
-import { CreateTaskModel } from './task-models';
+import { CreateTaskModel, UpdateTaskModel } from './task-models';
 import { getEnv } from '../../bin/util/get-env';
 
 export interface TaskStackProps {
@@ -27,6 +27,8 @@ export interface TaskStackProps {
 export class TaskConstruct extends Construct {
   public readonly table: Table;
   public readonly createTaskHandler: NodejsFunction;
+  public readonly updateTaskHandler: NodejsFunction;
+  public readonly deleteTaskHandler: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: TaskStackProps) {
     super(scope, id);
@@ -39,6 +41,8 @@ export class TaskConstruct extends Construct {
       throw new Error('projects/{project_id}/tasks not defined');
     }
 
+    const tasksIdResource = tasksResource.addResource('{task_id}');
+
     this.table = this.createTable('task-table');
 
     this.createTaskHandler = this.createCreateTaskHandler(
@@ -47,6 +51,21 @@ export class TaskConstruct extends Construct {
       tasksResource,
       props.authorizer,
       this.table
+    );
+
+    this.deleteTaskHandler = this.createDeleteTaskHandler(
+        'delete-task-handler',
+        tasksIdResource,
+        props.authorizer,
+        this.table
+    );
+
+    this.updateTaskHandler = this.createUpdateTaskHandler(
+        'update-task-handler',
+        props.api,
+        tasksIdResource,
+        props.authorizer,
+        this.table
     );
   }
 
@@ -101,6 +120,75 @@ export class TaskConstruct extends Construct {
       requestValidator: validator,
       requestModels: {
         'application/json': createTaskModel,
+      },
+      authorizer,
+    });
+
+    return handler;
+  }
+
+  private createDeleteTaskHandler(
+      id: string,
+      tasksResource: IResource,
+      authorizer: CognitoUserPoolsAuthorizer,
+      table: Table
+  ): NodejsFunction {
+    const handler = new NodejsFunction(this, getEnv(this, id), {
+      functionName: getEnv(this, 'delete-task'),
+      environment: {
+        DYNAMODB_TABLE_NAME: table.tableName,
+      },
+      runtime: Runtime.NODEJS_18_X,
+      entry: path.join(
+          __dirname,
+          '/../../src/tasks/handlers/delete-task-handler.ts'
+      ),
+    });
+
+    table.grantReadWriteData(handler);
+
+    tasksResource.addMethod('DELETE', new LambdaIntegration(handler), {
+      authorizer,
+    });
+
+    return handler;
+  }
+
+  private createUpdateTaskHandler(
+      id: string,
+      api: RestApi,
+      updateTasksResource: IResource,
+      authorizer: CognitoUserPoolsAuthorizer,
+      table: Table
+  ): NodejsFunction {
+    const handler = new NodejsFunction(this, getEnv(this, id), {
+      functionName: getEnv(this, 'update-task'),
+      environment: {
+        DYNAMODB_TABLE_NAME: table.tableName,
+      },
+      runtime: Runtime.NODEJS_18_X,
+      entry: path.join(
+          __dirname,
+          '/../../src/tasks/handlers/update-task-handler.ts'
+      ),
+    });
+
+    table.grantReadWriteData(handler);
+
+    const updateTaskModel: Model = api.addModel(
+        'UpdateTaskModel',
+        UpdateTaskModel
+    );
+
+    const validator = new RequestValidator(this, 'update-task-validator', {
+      validateRequestBody: true,
+      restApi: api
+    });
+
+    updateTasksResource.addMethod('PUT', new LambdaIntegration(handler), {
+      requestValidator: validator,
+      requestModels: {
+        'application/json': updateTaskModel,
       },
       authorizer,
     });
