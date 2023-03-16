@@ -1,6 +1,12 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
+import { Project } from '../projects/models/project';
 
 export class HttpResponse {
+  // TODO: Remove, or make for getRequest handler "ok" response
+  static ok(body?: string): APIGatewayProxyResult {
+      return HttpResponse.createResponse(200, body);
+  }
+
   public static created(body?: string): APIGatewayProxyResult {
     return HttpResponse.createResponse(201, body);
   }
@@ -11,6 +17,10 @@ export class HttpResponse {
 
   public static badRequest(body?: string): APIGatewayProxyResult {
     return HttpResponse.createResponse(400, body);
+  }
+
+  public static notFound(body?: string): APIGatewayProxyResult {
+    return HttpResponse.createResponse(404, body);
   }
 
   private static createResponse(

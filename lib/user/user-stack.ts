@@ -1,3 +1,4 @@
+// The user stack: Creation of user stack, with user pools per project and AWS Login/Authorization implementation.
 import { Construct } from 'constructs';
 import {
   OAuthScope,
@@ -9,6 +10,9 @@ import {
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { getEnv } from '../../bin/util/get-env';
 
+// Creates user stack, with user pools 
+// Note 1: Pool may be coupled with specific selection of projects
+// Note 2: Users are tracked and saved in AWS Cognito, thus no table is created for the user stack.
 export class UserStack extends Construct {
   public userPool: UserPool;
   public userPoolClient: UserPoolClient;
@@ -20,6 +24,7 @@ export class UserStack extends Construct {
     this.userPoolClient = this.createUserPoolClient(this.userPool);
   }
 
+  // Sets up user pool and registration of user within pool (Cognito)
   public createUserPool(): UserPool {
     const userPool = new UserPool(this, 'project-user-pool', {
       userPoolName: 'project-user-pool',
@@ -59,6 +64,7 @@ export class UserStack extends Construct {
     return userPool;
   }
 
+  // Creation and setup of new user in user pool (Cognito)
   public createUserPoolClient(userPool: UserPool): UserPoolClient {
     return new UserPoolClient(this, 'project-user-pool-client', {
       userPool: userPool,

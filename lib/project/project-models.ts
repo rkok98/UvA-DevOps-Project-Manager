@@ -1,5 +1,8 @@
+// The project models: Documentation of API requests regarding project in or to the resource (table in DB).
+
 import { JsonSchemaType, ModelOptions } from 'aws-cdk-lib/aws-apigateway';
 
+// Format request for (posting) a new project
 export const CreateProjectModel: ModelOptions = {
   modelName: 'CreateProject',
   contentType: 'application/json',
@@ -17,7 +20,7 @@ export const CreateProjectModel: ModelOptions = {
         type: JsonSchemaType.STRING,
       },
     },
-    required: ['projectId', 'name', 'description'],
+    required: ['id', 'name', 'description'],
   },
 };
 

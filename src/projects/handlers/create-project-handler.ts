@@ -1,3 +1,4 @@
+// Handlers for API requests regarding project table.
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Logger } from '@aws-lambda-powertools/logger';
 import { Project } from '../models/project';
@@ -13,6 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const region = process.env.AWS_REGION;
   const tableName = process.env.DYNAMODB_TABLE_NAME;
 
+  // Error handling: HTTP messages
   if (!region) {
     logger.error('AWS_REGION was not specified in the environment variables');
     return HttpResponse.internalServerError(
@@ -34,8 +36,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.badRequest('Request body cannot be empty');
   }
 
+  // Handle valid requests
   const project = JSON.parse(event.body) as Project;
-
   const projectRepository: ProjectRepository = new DynamodbProjectRepository(
     region,
     tableName
