@@ -28,8 +28,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     );
   }
 
-  const accountId = event.requestContext.accountId;
-  logger.addPersistentLogAttributes({ accountId: accountId });
+  if (!event.requestContext.authorizer?.claims?.sub) {
+    logger.error('No provided sub', {
+      authorizer: event.requestContext.authorizer,
+    });
+    return HttpResponse.internalServerError('Something went wrong');
+  }
+
+  const accountId = event.requestContext.authorizer?.claims?.sub as string;
+  logger.addPersistentLogAttributes({
+    accountId: accountId,
+  });
 
   const projectId = event.pathParameters?.project_id;
   if (!projectId) {
@@ -41,6 +50,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     region,
     tableName
   );
+
+  const project = await projectRepository.getProject(projectId);
+
+  if (project?.adminId !== accountId) {
+    return HttpResponse.unauthorized(
+      'Unauthorized to remove this project as you are not an admin user. '
+    );
+  }
 
   return projectRepository
     .deleteProject(projectId)

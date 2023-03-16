@@ -21,6 +21,10 @@ export class HttpResponse {
     return HttpResponse.createResponse(400, body);
   }
 
+  public static unauthorized(body?: string): APIGatewayProxyResult {
+    return HttpResponse.createResponse(401, body);
+  }
+
   public static notFound(body?: any): APIGatewayProxyResult {
     return HttpResponse.createResponse(404, body);
   }
