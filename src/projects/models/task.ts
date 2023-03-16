@@ -1,5 +1,7 @@
-export interface Project {
+export interface Task {
   id: string;
-  name: string;
+  title: string;
   description: string;
+  dateTime: string;
+  createdBy: string;
 }
