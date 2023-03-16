@@ -5,6 +5,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
 import {
+  CognitoUserPoolsAuthorizer,
   IResource,
   LambdaIntegration,
   Model,
@@ -16,6 +17,7 @@ import { getEnv } from '../../bin/util/get-env';
 export interface ProjectStackProps {
   region: string;
   api: RestApi;
+  authorizer: CognitoUserPoolsAuthorizer;
 }
 
 export class ProjectConstruct extends Construct {
@@ -33,6 +35,7 @@ export class ProjectConstruct extends Construct {
       'create-project-handler',
       props.api,
       projectsResource,
+      props.authorizer,
       this.table
     );
   }
@@ -53,6 +56,7 @@ export class ProjectConstruct extends Construct {
     id: string,
     api: RestApi,
     projectsResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
     table: Table
   ): NodejsFunction {
     const handler = new NodejsFunction(this, getEnv(this, id), {
@@ -81,6 +85,7 @@ export class ProjectConstruct extends Construct {
       requestModels: {
         'application/json': createProjectModel,
       },
+      authorizer,
     });
 
     return handler;

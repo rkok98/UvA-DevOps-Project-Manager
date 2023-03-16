@@ -8,20 +8,24 @@ import {
 } from 'aws-cdk-lib/aws-cognito';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { getEnv } from '../../bin/util/get-env';
+import { CognitoUserPoolsAuthorizer } from 'aws-cdk-lib/aws-apigateway';
 
 export class UserStack extends Construct {
   public userPool: UserPool;
   public userPoolClient: UserPoolClient;
+
+  public authorizer: CognitoUserPoolsAuthorizer;
 
   public constructor(scope: Construct, id: string) {
     super(scope, id);
 
     this.userPool = this.createUserPool();
     this.userPoolClient = this.createUserPoolClient(this.userPool);
+    this.authorizer = this.createAuthorizer([this.userPool]);
   }
 
   public createUserPool(): UserPool {
-    const userPool = new UserPool(this, 'project-user-pool', {
+    const userPool = new UserPool(this, getEnv(this, 'project-user-pool'), {
       userPoolName: 'project-user-pool',
       selfSignUpEnabled: true,
       signInAliases: {
@@ -60,7 +64,7 @@ export class UserStack extends Construct {
   }
 
   public createUserPoolClient(userPool: UserPool): UserPoolClient {
-    return new UserPoolClient(this, 'project-user-pool-client', {
+    return new UserPoolClient(this, getEnv(this, 'user-pool-client'), {
       userPool: userPool,
       supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO],
       oAuth: {
@@ -70,5 +74,15 @@ export class UserStack extends Construct {
         scopes: [OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE],
       },
     });
+  }
+
+  private createAuthorizer(userPools: UserPool[]): CognitoUserPoolsAuthorizer {
+    return new CognitoUserPoolsAuthorizer(
+      this,
+      `${getEnv(this, 'authorizer')}`,
+      {
+        cognitoUserPools: userPools,
+      }
+    );
   }
 }

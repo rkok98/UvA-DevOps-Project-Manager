@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { ProjectConstruct } from './project/project-stack';
 import { UserStack } from './user/user-stack';
+import { getEnv } from '../bin/util/get-env';
 
 export class DevopsProjectManagerStack extends Stack {
   public readonly api: RestApi;
@@ -14,17 +15,19 @@ export class DevopsProjectManagerStack extends Stack {
 
     this.api = this.createAPIGateWay('project-management-api');
 
+    const userStack = new UserStack(this, 'user-construct');
+
     new ProjectConstruct(this, 'project-construct', {
       api: this.api,
+      authorizer: userStack.authorizer,
       region,
     });
-
-    new UserStack(this, 'user-construct');
   }
 
   private createAPIGateWay(id: string): RestApi {
-    const api = new RestApi(this, id, {
-      restApiName: 'rest-api',
+    return new RestApi(this, id, {
+      restApiName: getEnv(this, 'rest-api'),
+      cloudWatchRole: true,
       defaultCorsPreflightOptions: {
         allowHeaders: [
           'Content-Type',
@@ -37,7 +40,5 @@ export class DevopsProjectManagerStack extends Stack {
         allowOrigins: ['http://localhost:3000'],
       },
     });
-
-    return api;
   }
 }

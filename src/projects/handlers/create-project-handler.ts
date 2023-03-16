@@ -1,9 +1,11 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Logger } from '@aws-lambda-powertools/logger';
-import { Project } from '../models/project';
 import { ProjectRepository } from '../services/project-repository';
 import { HttpResponse } from '../../util/http-response';
 import { DynamodbProjectRepository } from '../services/dynamodb-project-repository';
+import { CreateProjectBody } from '../models/create-project-body';
+import { Project } from '../models/project';
+import { randomUUID } from 'crypto';
 
 const logger = new Logger({ serviceName: 'createProject' });
 
@@ -12,6 +14,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const region = process.env.AWS_REGION;
   const tableName = process.env.DYNAMODB_TABLE_NAME;
+
+  const accountId = event.requestContext.accountId;
+  logger.addPersistentLogAttributes({ accountId: accountId });
 
   if (!region) {
     logger.error('AWS_REGION was not specified in the environment variables');
@@ -34,7 +39,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.badRequest('Request body cannot be empty');
   }
 
-  const project = JSON.parse(event.body) as Project;
+  const { name, description } = JSON.parse(event.body) as CreateProjectBody;
+  const project: Project = {
+    id: randomUUID(),
+    adminId: accountId,
+    name,
+    description,
+  };
 
   const projectRepository: ProjectRepository = new DynamodbProjectRepository(
     region,

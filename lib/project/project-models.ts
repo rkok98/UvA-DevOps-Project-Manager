@@ -7,9 +7,6 @@ export const CreateProjectModel: ModelOptions = {
     title: 'createProject',
     type: JsonSchemaType.OBJECT,
     properties: {
-      id: {
-        type: JsonSchemaType.STRING,
-      },
       name: {
         type: JsonSchemaType.STRING,
       },
@@ -17,7 +14,7 @@ export const CreateProjectModel: ModelOptions = {
         type: JsonSchemaType.STRING,
       },
     },
-    required: ['projectId', 'name', 'description'],
+    required: ['name', 'description'],
   },
 };
 
