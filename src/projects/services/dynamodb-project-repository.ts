@@ -1,6 +1,13 @@
+// The DynamoDB database repository:
+// Table of projects in the DB.
+// Handling of creating, getting, updating, and deleting projects in the table.
 import { Project } from '../models/project';
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
+import {
+  DynamoDBClient,
+  GetItemCommand,
+  PutItemCommand,
+} from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { ProjectRepository } from './project-repository';
 
 export class DynamodbProjectRepository implements ProjectRepository {
@@ -12,6 +19,7 @@ export class DynamodbProjectRepository implements ProjectRepository {
     this.tableName = tableName;
   }
 
+  // Creates a new project object in table
   async createProject(project: Project): Promise<void> {
     const putRequest = new PutItemCommand({
       TableName: this.tableName,
@@ -20,14 +28,28 @@ export class DynamodbProjectRepository implements ProjectRepository {
 
     return this.client.send(putRequest).then();
   }
-  async getProject(id: string): Promise<Project> {
-    throw new Error('Get project not implemented');
+
+  // Obtains an existing project from table according to id
+  async getProject(id: string): Promise<Project | null> {
+    const getRequest = new GetItemCommand({
+      TableName: this.tableName,
+      Key: marshall({ id: id }),
+    });
+
+    const response = await this.client.send(getRequest);
+
+    if (!response.Item) return null;
+
+    return unmarshall(response.Item) as Project;
   }
 
+  // Deletes a specific existing project from table
   async deleteProject(project: Project): Promise<void> {
     throw new Error('Delete project not implemented');
   }
 
+  // TODO: Update project 1) title, 2) description
+  // Updates a specific existing project from table (body: title, description)
   async updateProject(project: Project): Promise<void> {
     throw new Error('Update project not implemented');
   }
