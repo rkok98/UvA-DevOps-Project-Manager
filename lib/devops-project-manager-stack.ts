@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { ProjectConstruct } from './project/project-stack';
 import { UserStack } from './user/user-stack';
+import {TaskConstruct} from "./project/task-stack";
 
 export class DevopsProjectManagerStack extends Stack {
   public readonly api: RestApi;
@@ -15,6 +16,11 @@ export class DevopsProjectManagerStack extends Stack {
     this.api = this.createAPIGateWay('project-management-api');
 
     new ProjectConstruct(this, 'project-construct', {
+      api: this.api,
+      region,
+    });
+
+    new TaskConstruct(this, 'task-construct', {
       api: this.api,
       region,
     });
