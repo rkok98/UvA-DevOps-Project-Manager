@@ -36,6 +36,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.badRequest('Path parameters cannot be null');
   }
 
+  const accountId = event.requestContext.accountId;
+  logger.addPersistentLogAttributes({ accountId: accountId });
+
   // Handle valid requests
   // Note: project_id from CDK projectsIdResource
   const projectID = event.pathParameters?.project_id;
@@ -54,9 +57,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   return projectRepository
     .getProject(projectID)
     .then((project: Project | null) => {
-      if (project) {
-        return HttpResponse.ok(project);
+      if (project && project.adminId === accountId) {
+        return HttpResponse.ok(JSON.stringify(project));
       }
+
       return HttpResponse.notFound();
     })
     .catch((error: Error) => {
