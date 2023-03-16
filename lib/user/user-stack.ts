@@ -7,6 +7,7 @@ import {
   VerificationEmailStyle,
 } from 'aws-cdk-lib/aws-cognito';
 import { RemovalPolicy } from 'aws-cdk-lib';
+import { getEnv } from '../../bin/util/get-env';
 
 export class UserStack extends Construct {
   public userPool: UserPool;
@@ -51,7 +52,7 @@ export class UserStack extends Construct {
 
     userPool.addDomain('hosted-ui', {
       cognitoDomain: {
-        domainPrefix: 'project-management-app',
+        domainPrefix: `${getEnv(this, 'project-manager-app')}`,
       },
     });
 
