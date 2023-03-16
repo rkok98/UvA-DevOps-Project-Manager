@@ -9,6 +9,10 @@ export class HttpResponse {
     return HttpResponse.createResponse(201, body);
   }
 
+  public static deleted(body?: string): APIGatewayProxyResult {
+    return HttpResponse.createResponse(202, body);
+  }
+
   public static internalServerError(body?: any): APIGatewayProxyResult {
     return HttpResponse.createResponse(500, body);
   }
