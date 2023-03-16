@@ -4,7 +4,7 @@ import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
-import { LambdaIntegration, Model, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { IResource, LambdaIntegration, Model, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { CreateTaskModel, GetTaskModel } from './task-models';
 
 export interface TaskStackProps {
@@ -28,21 +28,29 @@ export class TaskConstruct extends Construct {
             throw new Error('Project resources not defined');
         }
 
+        const projectIdResources = projectsResources.addResource('{project_id}');
+
+        if (!projectIdResources) {
+            throw new Error('Project id resources are not defined');
+        }
+
+        const projectIdTasksResources = projectIdResources.addResource('tasks');
+
+        if (!projectIdResources) {
+            throw new Error('Project id resources are not defined');
+        }
+
         this.createTaskHandler = this.createCreateTaskHandler(
             'create-task-handler',
             props.api,
+            projectIdTasksResources,
             this.table
         );
-
-        // const projectIdResources = projectsResources.getResource('{project_id}');
-        //
-        // if (!projectIdResources) {
-        //     throw new Error('Project id resources are not defined');
-        // }
 
         this.getTaskHandler = this.createGetTaskHandler(
             'get-task-handler',
             props.api,
+            projectIdTasksResources,
             this.table
         )
     }
@@ -63,6 +71,7 @@ export class TaskConstruct extends Construct {
     private createCreateTaskHandler(
         id: string,
         api: RestApi,
+        projectIdTasksResources: IResource,
         table: Table
     ): NodejsFunction {
         const handler = new NodejsFunction(this, id, {
@@ -84,11 +93,7 @@ export class TaskConstruct extends Construct {
             CreateTaskModel
         );
 
-
-        api.root
-            .addResource('{project_id}')
-            .addResource('tasks')
-            .addMethod('POST', new LambdaIntegration(handler), {
+        projectIdTasksResources.addMethod('POST', new LambdaIntegration(handler), {
                 requestModels: {
                     'application/json': createTaskModel,
                 },
@@ -100,6 +105,7 @@ export class TaskConstruct extends Construct {
     private createGetTaskHandler(
         id: string,
         api: RestApi,
+        projectIdTasksResources: IResource,
         table: Table
     ): NodejsFunction {
         const handler = new NodejsFunction(this, id, {
@@ -121,12 +127,7 @@ export class TaskConstruct extends Construct {
             GetTaskModel
         );
 
-        api.root.getResource('projects');
-        api.root.getResource('{project_id}');
-
-        api.root
-            .addResource('tasks')
-            .addMethod('GET', new LambdaIntegration(handler), {
+        projectIdTasksResources.addMethod('GET', new LambdaIntegration(handler), {
                 requestModels: {
                     'application/json': getTaskModel,
                 },
