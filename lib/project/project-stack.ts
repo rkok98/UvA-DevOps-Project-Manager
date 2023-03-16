@@ -108,6 +108,37 @@ export class ProjectConstruct extends Construct {
     return handler;
   }
 
+  private createDeleteProjectHandler(
+      id: string,
+      api: RestApi,
+      projectsResource: IResource,
+      table: Table
+  ): NodejsFunction {
+    const handler = new NodejsFunction(this, getEnv(this, id), {
+      functionName: getEnv(this, 'delete-new-project'),
+      environment: {
+        DYNAMODB_TABLE_NAME: table.tableName,
+      },
+      runtime: Runtime.NODEJS_18_X,
+      entry: path.join(
+          __dirname,
+          '/../../src/projects/handlers/delete-project-handler.ts'
+      ),
+    });
+
+    table.grantReadWriteData(handler);
+
+    projectsResource.addMethod('DELETE', new LambdaIntegration(handler), {
+      requestValidatorOptions: {
+        validateRequestBody: true,
+      },
+      requestModels: {
+      },
+    });
+
+    return handler;
+  }
+
   private createGetProjectHandler(
     id: string,
     projectsResource: IResource,
