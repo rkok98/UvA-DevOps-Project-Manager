@@ -5,5 +5,5 @@ export interface ProjectRepository {
   getProject(id: string): Promise<Project | null>;
   createProject(project: Project): Promise<void>;
   updateProject(project: Project): Promise<void>;
-  deleteProject(project: Project): Promise<void>;
+  deleteProject(id: string): Promise<void>;
 }

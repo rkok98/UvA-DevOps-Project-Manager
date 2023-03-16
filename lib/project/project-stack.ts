@@ -28,6 +28,7 @@ export class ProjectConstruct extends Construct {
   public readonly table: Table;
   public readonly createProjectHandler: NodejsFunction;
   public readonly getProjectHandler: NodejsFunction;
+  public readonly deleteProjectHandler: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: ProjectStackProps) {
     super(scope, id);
@@ -48,6 +49,14 @@ export class ProjectConstruct extends Construct {
     this.getProjectHandler = this.createGetProjectHandler(
       'get-project-handler',
       projectsIdResource,
+      props.authorizer,
+      this.table
+    );
+
+    this.deleteProjectHandler = this.createDeleteProjectHandler(
+      'delete-project-handler',
+      projectsIdResource,
+      props.authorizer,
       this.table
     );
   }
@@ -108,9 +117,37 @@ export class ProjectConstruct extends Construct {
     return handler;
   }
 
+  private createDeleteProjectHandler(
+    id: string,
+    projectsResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
+    table: Table
+  ): NodejsFunction {
+    const handler = new NodejsFunction(this, getEnv(this, id), {
+      functionName: getEnv(this, 'delete-new-project'),
+      environment: {
+        DYNAMODB_TABLE_NAME: table.tableName,
+      },
+      runtime: Runtime.NODEJS_18_X,
+      entry: path.join(
+        __dirname,
+        '/../../src/projects/handlers/delete-project-handler.ts'
+      ),
+    });
+
+    table.grantReadWriteData(handler);
+
+    projectsResource.addMethod('DELETE', new LambdaIntegration(handler), {
+      authorizer,
+    });
+
+    return handler;
+  }
+
   private createGetProjectHandler(
     id: string,
     projectsResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
     table: Table
   ): NodejsFunction {
     const handler = new NodejsFunction(this, getEnv(this, id), {
@@ -127,7 +164,9 @@ export class ProjectConstruct extends Construct {
 
     table.grantReadWriteData(handler);
 
-    projectsResource.addMethod('GET', new LambdaIntegration(handler), {});
+    projectsResource.addMethod('GET', new LambdaIntegration(handler), {
+      authorizer,
+    });
 
     return handler;
   }

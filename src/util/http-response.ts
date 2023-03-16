@@ -9,12 +9,20 @@ export class HttpResponse {
     return HttpResponse.createResponse(201, body);
   }
 
+  public static accepted(body?: string): APIGatewayProxyResult {
+    return HttpResponse.createResponse(202, body);
+  }
+
   public static internalServerError(body?: any): APIGatewayProxyResult {
     return HttpResponse.createResponse(500, body);
   }
 
   public static badRequest(body?: any): APIGatewayProxyResult {
     return HttpResponse.createResponse(400, body);
+  }
+
+  public static unauthorized(body?: string): APIGatewayProxyResult {
+    return HttpResponse.createResponse(401, body);
   }
 
   public static notFound(body?: any): APIGatewayProxyResult {
