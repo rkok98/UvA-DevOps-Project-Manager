@@ -9,6 +9,6 @@ const region = process.env.CDK_DEFAULT_REGION;
 
 const app = new App();
 
-new DevopsProjectManagerStack(app, getEnv('DevOpsProjectStack'), {
+new DevopsProjectManagerStack(app, getEnv(app, 'DevOpsProjectStack'), {
   env: { account, region },
 });

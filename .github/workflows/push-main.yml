@@ -14,4 +14,4 @@ jobs:
       - Test
     secrets: inherit
     with:
-      env: 'prod'
+      env: 'PRODUCTION'
