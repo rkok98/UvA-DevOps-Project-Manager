@@ -34,6 +34,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         return HttpResponse.badRequest('Request body cannot be empty');
     }
 
+    if (!event.requestContext.authorizer?.claims?.sub) {
+        logger.error('No provided sub', {
+            authorizer: event.requestContext.authorizer,
+        });
+        return HttpResponse.internalServerError('Something went wrong');
+    }
+
+    const accountId = event.requestContext.authorizer?.claims?.sub as string;
+    logger.addPersistentLogAttributes({
+        accountId: accountId,
+    });
+
     const projectId = event.pathParameters?.project_id;
     if (!projectId) {
         logger.error('Project id cannot be empty');
@@ -42,6 +54,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const project = JSON.parse(event.body) as Project;
     project.id = projectId;
+    project.adminId = accountId;
 
     const projectRepository: ProjectRepository = new DynamodbProjectRepository(
         region,

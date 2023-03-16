@@ -64,6 +64,7 @@ export class ProjectConstruct extends Construct {
         'update-project-handler',
         props.api,
         projectsIdResource,
+        props.authorizer,
         this.table
     );
   }
@@ -184,6 +185,7 @@ export class ProjectConstruct extends Construct {
       id: string,
       api: RestApi,
       updateProjectsResource: IResource,
+      authorizer: CognitoUserPoolsAuthorizer,
       table: Table
   ): NodejsFunction {
     const handler = new NodejsFunction(this, getEnv(this, id), {
@@ -215,6 +217,7 @@ export class ProjectConstruct extends Construct {
       requestModels: {
         'application/json': updateProjectModel,
       },
+      authorizer,
     });
 
     return handler;
