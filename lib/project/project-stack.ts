@@ -34,7 +34,7 @@ export class ProjectConstruct extends Construct {
     super(scope, id);
 
     const projectsResource = props.api.root.addResource('projects');
-    const projectsIdResource = projectsResource.addResource('{project_id}')
+    const projectsIdResource = projectsResource.addResource('{project_id}');
 
     this.table = this.createTable('project-table');
 
@@ -53,10 +53,10 @@ export class ProjectConstruct extends Construct {
     );
 
     this.deleteProjectHandler = this.createDeleteProjectHandler(
-        'delete-project-handler',
-        props.api,
-        projectsIdResource,
-        this.table
+      'delete-project-handler',
+      projectsIdResource,
+      props.authorizer,
+      this.table
     );
   }
 
@@ -117,10 +117,10 @@ export class ProjectConstruct extends Construct {
   }
 
   private createDeleteProjectHandler(
-      id: string,
-      api: RestApi,
-      projectsResource: IResource,
-      table: Table
+    id: string,
+    projectsResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
+    table: Table
   ): NodejsFunction {
     const handler = new NodejsFunction(this, getEnv(this, id), {
       functionName: getEnv(this, 'delete-new-project'),
@@ -129,14 +129,16 @@ export class ProjectConstruct extends Construct {
       },
       runtime: Runtime.NODEJS_18_X,
       entry: path.join(
-          __dirname,
-          '/../../src/projects/handlers/delete-project-handler.ts'
+        __dirname,
+        '/../../src/projects/handlers/delete-project-handler.ts'
       ),
     });
 
     table.grantReadWriteData(handler);
 
-    projectsResource.addMethod('DELETE', new LambdaIntegration(handler), {});
+    projectsResource.addMethod('DELETE', new LambdaIntegration(handler), {
+      authorizer,
+    });
 
     return handler;
   }
