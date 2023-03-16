@@ -15,9 +15,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const region = process.env.AWS_REGION;
   const tableName = process.env.DYNAMODB_TABLE_NAME;
 
-  const accountId = event.requestContext.accountId;
-  logger.addPersistentLogAttributes({ accountId: accountId });
-
   if (!region) {
     logger.error('AWS_REGION was not specified in the environment variables');
     return HttpResponse.internalServerError(
