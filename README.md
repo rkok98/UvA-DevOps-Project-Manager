@@ -4,6 +4,11 @@ This is a blank project for CDK development with TypeScript.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
+## Usage
+
+1. Copy the contents of `cdk.context.json.dist` to `cdk.context.json` and change `<YOUR_NAME>` to your first name in lowercase. 
+    For example: rene-dev or tessa-dev.
+
 ## Useful commands
 
 - `npm run build` compile typescript to js
