@@ -67,7 +67,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     .getProject(projectID)
     .then((project: Project | null) => {
       if (project && project.adminId === accountId) {
-        return HttpResponse.ok(JSON.stringify(project));
+        return HttpResponse.ok(project);
       }
 
       return HttpResponse.notFound();

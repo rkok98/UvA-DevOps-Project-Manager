@@ -55,13 +55,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   if (project?.adminId !== accountId) {
     return HttpResponse.unauthorized(
-      'Unauthorized to remove this project as you are not an admin user. '
+      'Unauthorized to remove this project as you do not belong to this project'
     );
   }
 
   return projectRepository
     .deleteProject(projectId)
-    .then(() => HttpResponse.deleted())
+    .then(() => HttpResponse.accepted())
     .catch((error: Error) => {
       logger.error(error.message);
       return HttpResponse.internalServerError(error.message);

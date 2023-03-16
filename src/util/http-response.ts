@@ -9,7 +9,7 @@ export class HttpResponse {
     return HttpResponse.createResponse(201, body);
   }
 
-  public static deleted(body?: string): APIGatewayProxyResult {
+  public static accepted(body?: string): APIGatewayProxyResult {
     return HttpResponse.createResponse(202, body);
   }
 

@@ -49,6 +49,7 @@ export class ProjectConstruct extends Construct {
     this.getProjectHandler = this.createGetProjectHandler(
       'get-project-handler',
       projectsIdResource,
+      props.authorizer,
       this.table
     );
 
@@ -146,6 +147,7 @@ export class ProjectConstruct extends Construct {
   private createGetProjectHandler(
     id: string,
     projectsResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
     table: Table
   ): NodejsFunction {
     const handler = new NodejsFunction(this, getEnv(this, id), {
@@ -162,7 +164,9 @@ export class ProjectConstruct extends Construct {
 
     table.grantReadWriteData(handler);
 
-    projectsResource.addMethod('GET', new LambdaIntegration(handler), {});
+    projectsResource.addMethod('GET', new LambdaIntegration(handler), {
+      authorizer,
+    });
 
     return handler;
   }
