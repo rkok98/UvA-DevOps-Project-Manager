@@ -58,9 +58,13 @@ export class DynamodbProjectRepository implements ProjectRepository {
     return this.client.send(deleteRequest).then();
   }
 
-  // TODO: Update project 1) title, 2) description
   // Updates a specific existing project from table (body: title, description)
   async updateProject(project: Project): Promise<void> {
-    throw new Error('Update project not implemented');
+    const putRequest = new PutItemCommand({
+      TableName: this.tableName,
+      Item: marshall(project),
+    });
+
+    return this.client.send(putRequest).then();
   }
 }
