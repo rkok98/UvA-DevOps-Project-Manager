@@ -36,8 +36,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.badRequest('Path parameters cannot be null');
   }
 
-  const accountId = event.requestContext.accountId;
-  logger.addPersistentLogAttributes({ accountId: accountId });
+  if (!event.requestContext.authorizer?.claims?.sub) {
+    logger.error('No provided sub', {
+      authorizer: event.requestContext.authorizer,
+    });
+    return HttpResponse.internalServerError('Something went wrong');
+  }
+
+  const accountId = event.requestContext.authorizer?.claims?.sub as string;
+  logger.addPersistentLogAttributes({
+    accountId: accountId,
+  });
 
   // Handle valid requests
   // Note: project_id from CDK projectsIdResource
