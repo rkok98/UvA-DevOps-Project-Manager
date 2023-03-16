@@ -11,10 +11,10 @@ import {
   CognitoUserPoolsAuthorizer,
   IResource,
   LambdaIntegration,
-  Model,
+  Model, RequestValidator,
   RestApi,
 } from 'aws-cdk-lib/aws-apigateway';
-import { CreateProjectModel } from './project-models';
+import { CreateProjectModel, UpdateProjectModel } from './project-models';
 import { getEnv } from '../../bin/util/get-env';
 
 export interface ProjectStackProps {
@@ -58,6 +58,14 @@ export class ProjectConstruct extends Construct {
       projectsIdResource,
       props.authorizer,
       this.table
+    );
+
+    this.createProjectHandler = this.createUpdateProjectHandler(
+        'update-project-handler',
+        props.api,
+        projectsIdResource,
+        props.authorizer,
+        this.table
     );
   }
 
@@ -103,11 +111,13 @@ export class ProjectConstruct extends Construct {
       CreateProjectModel
     );
 
-    // API call/method to execute posting a new project according to project model in project table
+    const validator = new RequestValidator(this, 'create-project-validator', {
+      validateRequestBody: true,
+      restApi: api
+    });
+
     projectsResource.addMethod('POST', new LambdaIntegration(handler), {
-      requestValidatorOptions: {
-        validateRequestBody: true,
-      },
+      requestValidator: validator,
       requestModels: {
         'application/json': createProjectModel,
       },
@@ -165,6 +175,48 @@ export class ProjectConstruct extends Construct {
     table.grantReadWriteData(handler);
 
     projectsResource.addMethod('GET', new LambdaIntegration(handler), {
+      authorizer,
+    });
+
+    return handler;
+  }
+
+  private createUpdateProjectHandler(
+      id: string,
+      api: RestApi,
+      updateProjectsResource: IResource,
+      authorizer: CognitoUserPoolsAuthorizer,
+      table: Table
+  ): NodejsFunction {
+    const handler = new NodejsFunction(this, getEnv(this, id), {
+      functionName: getEnv(this, 'update-project'),
+      environment: {
+        DYNAMODB_TABLE_NAME: table.tableName,
+      },
+      runtime: Runtime.NODEJS_18_X,
+      entry: path.join(
+          __dirname,
+          '/../../src/projects/handlers/update-project-handler.ts'
+      ),
+    });
+
+    table.grantReadWriteData(handler);
+
+    const updateProjectModel: Model = api.addModel(
+        'UpdateProjectModel',
+        UpdateProjectModel
+    );
+
+    const validator = new RequestValidator(this, 'update-project-validator', {
+      validateRequestBody: true,
+      restApi: api
+    });
+
+    updateProjectsResource.addMethod('PUT', new LambdaIntegration(handler), {
+      requestValidator: validator,
+      requestModels: {
+        'application/json': updateProjectModel,
+      },
       authorizer,
     });
 

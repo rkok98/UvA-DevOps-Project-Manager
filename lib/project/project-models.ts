@@ -24,4 +24,22 @@ export const CreateProjectModel: ModelOptions = {
   },
 };
 
-export default { CreateProjectModel };
+export const UpdateProjectModel: ModelOptions = {
+  modelName: 'UpdateProject',
+  contentType: 'application/json',
+  schema: {
+    title: 'updateProject',
+    type: JsonSchemaType.OBJECT,
+    properties: {
+      name: {
+        type: JsonSchemaType.STRING,
+      },
+      description: {
+        type: JsonSchemaType.STRING,
+      },
+    },
+    required: ['name', 'description'],
+  },
+};
+
+export default { CreateProjectModel, UpdateProjectModel };
