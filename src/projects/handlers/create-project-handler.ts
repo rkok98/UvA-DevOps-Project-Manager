@@ -34,6 +34,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     );
   }
 
+  if (!event.requestContext.authorizer?.claims?.sub) {
+    logger.error('No provided sub', {
+      authorizer: event.requestContext.authorizer,
+    });
+    return HttpResponse.internalServerError('Something went wrong');
+  }
+
+  const accountId = event.requestContext.authorizer?.claims?.sub as string;
+  logger.addPersistentLogAttributes({
+    accountId: accountId,
+  });
+
   if (!event.body) {
     logger.error('Request body cannot be empty');
     return HttpResponse.badRequest('Request body cannot be empty');
@@ -42,7 +54,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const { name, description } = JSON.parse(event.body) as CreateProjectBody;
   const project: Project = {
     id: randomUUID(),
-    adminId: accountId,
+    adminId: accountId!,
     name,
     description,
   };
