@@ -1,9 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Logger } from '@aws-lambda-powertools/logger';
 import { HttpResponse } from '../../util/http-response';
-import {Task} from "../models/task";
-import {TaskRepository} from "../services/task-repository";
-import {DynamodbTaskRepository} from "../services/dynamodb-task-repository";
+import { Task } from '../models/task';
+import { TaskRepository } from '../services/task-repository';
+import { DynamodbTaskRepository } from '../services/dynamodb-task-repository';
 
 const logger = new Logger({ serviceName: 'updateTask' });
 

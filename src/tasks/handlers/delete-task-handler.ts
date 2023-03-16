@@ -1,10 +1,8 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Logger } from '@aws-lambda-powertools/logger';
-import { ProjectRepository } from '../../projects/services/project-repository';
 import { HttpResponse } from '../../util/http-response';
-import { DynamodbProjectRepository } from '../../projects/services/dynamodb-project-repository';
-import {TaskRepository} from "../services/task-repository";
-import {DynamodbTaskRepository} from "../services/dynamodb-task-repository";
+import { TaskRepository } from '../services/task-repository';
+import { DynamodbTaskRepository } from '../services/dynamodb-task-repository';
 
 const logger = new Logger({ serviceName: 'deleteTask' });
 
