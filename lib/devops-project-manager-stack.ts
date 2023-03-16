@@ -5,7 +5,7 @@ import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { ProjectConstruct } from './project/project-stack';
 import { UserStack } from './user/user-stack';
 import { getEnv } from '../bin/util/get-env';
-import {TaskConstruct} from "./task/task-stack";
+import { TaskConstruct } from './task/task-stack';
 
 // Creates two stacks within main stack
 export class DevopsProjectManagerStack extends Stack {

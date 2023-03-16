@@ -1,4 +1,4 @@
-import {JsonSchemaType, ModelOptions} from 'aws-cdk-lib/aws-apigateway';
+import { JsonSchemaType, ModelOptions } from 'aws-cdk-lib/aws-apigateway';
 
 /**
  * This file contains the project models, which document the API requests
