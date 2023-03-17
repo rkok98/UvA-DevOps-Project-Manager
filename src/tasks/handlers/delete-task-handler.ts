@@ -1,13 +1,10 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Logger } from '@aws-lambda-powertools/logger';
 import { HttpResponse } from '../../util/http-response';
-import { randomUUID } from 'crypto';
-import { CreateTaskBody } from '../models/create-task-body';
-import { Task } from '../models/task';
 import { TaskRepository } from '../services/task-repository';
 import { DynamodbTaskRepository } from '../services/dynamodb-task-repository';
 
-const logger = new Logger({ serviceName: 'createTask' });
+const logger = new Logger({ serviceName: 'deleteTask' });
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   logger.addPersistentLogAttributes({ body: event.body });
@@ -43,36 +40,34 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     accountId: accountId,
   });
 
-  if (!event.body) {
-    logger.error('Request body cannot be empty');
-    return HttpResponse.badRequest('Request body cannot be empty');
-  }
-
-  const projectIdPath = event.pathParameters?.project_id;
-  if (!projectIdPath) {
+  const projectId = event.pathParameters?.project_id;
+  if (!projectId) {
     logger.error('Project id cannot be empty');
     return HttpResponse.badRequest('Project id cannot be empty');
   }
 
-  const { title, description, dateTime, createdBy } = JSON.parse(event.body) as CreateTaskBody;
-  const task: Task = {
-    id: randomUUID(),
-    projectId: projectIdPath,
-    adminId: accountId!,
-    title,
-    description,
-    dateTime,
-    createdBy,
-  };
+  const taskId = event.pathParameters?.task_id;
+  if (!taskId) {
+    logger.error('Task id cannot be empty');
+    return HttpResponse.badRequest('Task id cannot be empty');
+  }
 
   const taskRepository: TaskRepository = new DynamodbTaskRepository(
-    region,
-    tableName
+      region,
+      tableName
   );
 
+  const task = await taskRepository.getTask(taskId);
+
+  if (task?.adminId !== accountId) {
+    return HttpResponse.unauthorized(
+        'Unauthorized to remove this project as you do not belong to this project'
+    );
+  }
+
   return taskRepository
-    .createTask(task)
-    .then(() => HttpResponse.created())
+    .deleteTask(taskId)
+    .then(() => HttpResponse.accepted())
     .catch((error: Error) => {
       logger.error(error.message);
       return HttpResponse.internalServerError(error.message);
