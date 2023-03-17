@@ -4,7 +4,7 @@ import { ProjectRepository } from '../services/project-repository';
 import { HttpResponse } from '../../util/http-response';
 import { DynamodbProjectRepository } from '../services/dynamodb-project-repository';
 
-const logger = new Logger({ serviceName: 'createProject' });
+const logger = new Logger({ serviceName: 'deleteProject' });
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   logger.addPersistentLogAttributes({ body: event.body });

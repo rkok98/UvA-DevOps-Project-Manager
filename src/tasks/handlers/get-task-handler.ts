@@ -48,8 +48,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const taskID = event.pathParameters?.task_id;
 
   if (!taskID) {
-    logger.error('ID must be specified');
-    return HttpResponse.badRequest('ID must be specified');
+    logger.error('Task ID must be specified');
+    return HttpResponse.badRequest('Task ID must be specified');
   }
 
   // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
