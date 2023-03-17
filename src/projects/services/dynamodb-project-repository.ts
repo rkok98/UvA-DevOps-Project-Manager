@@ -2,9 +2,12 @@
 // Table of projects in the DB.
 // Handling of creating, getting, updating, and deleting projects in the table.
 import { Project } from '../models/project';
-import { DeleteItemCommand, DynamoDBClient,
+import {
+  DeleteItemCommand,
+  DynamoDBClient,
   GetItemCommand,
   PutItemCommand,
+  ScanCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { ProjectRepository } from './project-repository';
@@ -44,16 +47,14 @@ export class DynamodbProjectRepository implements ProjectRepository {
 
   // Deletes a specific existing project from table
   async deleteProject(id: string): Promise<void> {
-    const deleteRequest = new DeleteItemCommand(
-        {
-          TableName: this.tableName,
-          Key: {
-            id: {
-              S: id
-            }
-          }
-        }
-    );
+    const deleteRequest = new DeleteItemCommand({
+      TableName: this.tableName,
+      Key: {
+        id: {
+          S: id,
+        },
+      },
+    });
 
     return this.client.send(deleteRequest).then();
   }
@@ -66,5 +67,26 @@ export class DynamodbProjectRepository implements ProjectRepository {
     });
 
     return this.client.send(putRequest).then();
+  }
+
+  async getProjectsByAdminId(userId: string): Promise<Project[]> {
+    const command = new ScanCommand({
+      TableName: this.tableName,
+      FilterExpression: '#adminId = :adminId',
+      ExpressionAttributeNames: {
+        '#adminId': 'adminId',
+      },
+      ExpressionAttributeValues: {
+        ':adminId': {
+          S: userId,
+        },
+      },
+    });
+
+    const response = await this.client.send(command);
+
+    return (
+      response.Items?.map((response) => unmarshall(response) as Project) ?? []
+    );
   }
 }

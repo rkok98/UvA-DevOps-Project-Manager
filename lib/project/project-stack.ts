@@ -28,6 +28,7 @@ export class ProjectConstruct extends Construct {
   public readonly table: Table;
   public readonly createProjectHandler: NodejsFunction;
   public readonly getProjectHandler: NodejsFunction;
+  public readonly getProjectsHandler: NodejsFunction;
   public readonly deleteProjectHandler: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: ProjectStackProps) {
@@ -49,6 +50,13 @@ export class ProjectConstruct extends Construct {
     this.getProjectHandler = this.createGetProjectHandler(
       'get-project-handler',
       projectsIdResource,
+      props.authorizer,
+      this.table
+    );
+
+    this.getProjectsHandler = this.createGetProjectsHandler(
+      'get-projects-handler',
+      projectsResource,
       props.authorizer,
       this.table
     );
@@ -169,6 +177,33 @@ export class ProjectConstruct extends Construct {
       entry: path.join(
         __dirname,
         '/../../src/projects/handlers/get-project-handler.ts'
+      ),
+    });
+
+    table.grantReadWriteData(handler);
+
+    projectsResource.addMethod('GET', new LambdaIntegration(handler), {
+      authorizer,
+    });
+
+    return handler;
+  }
+
+  private createGetProjectsHandler(
+    id: string,
+    projectsResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
+    table: Table
+  ): NodejsFunction {
+    const handler = new NodejsFunction(this, getEnv(this, id), {
+      functionName: getEnv(this, 'get-projects'),
+      environment: {
+        DYNAMODB_TABLE_NAME: table.tableName,
+      },
+      runtime: Runtime.NODEJS_18_X,
+      entry: path.join(
+        __dirname,
+        '/../../src/projects/handlers/get-projects-handler.ts'
       ),
     });
 
