@@ -1,10 +1,12 @@
+// Handlers for API requests regarding project table.
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Logger } from '@aws-lambda-powertools/logger';
-import { HttpResponse } from '../../util/http-response';
+import { Task } from '../models/task';
 import { TaskRepository } from '../services/task-repository';
+import { HttpResponse } from '../../util/http-response';
 import { DynamodbTaskRepository } from '../services/dynamodb-task-repository';
 
-const logger = new Logger({ serviceName: 'deleteTask' });
+const logger = new Logger({ serviceName: 'getTask' });
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   logger.addPersistentLogAttributes({ body: event.body });
@@ -12,6 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const region = process.env.AWS_REGION;
   const tableName = process.env.DYNAMODB_TABLE_NAME;
 
+  // Error handling: HTTP messages
   if (!region) {
     logger.error('AWS_REGION was not specified in the environment variables');
     return HttpResponse.internalServerError(
@@ -28,6 +31,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     );
   }
 
+  if (!event.pathParameters) {
+    logger.error('Path parameters cannot be null');
+    return HttpResponse.badRequest('Path parameters cannot be null');
+  }
+
   if (!event.requestContext.authorizer?.claims?.sub) {
     logger.error('No provided sub', {
       authorizer: event.requestContext.authorizer,
@@ -35,26 +43,26 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.internalServerError('Something went wrong');
   }
 
-  const projectId = event.pathParameters?.project_id;
-  if (!projectId) {
-    logger.error('Project id cannot be empty');
-    return HttpResponse.badRequest('Project id cannot be empty');
+  // Handle valid requests
+  // Note: project_id from CDK projectsIdResource
+  const taskID = event.pathParameters?.task_id;
+
+  if (!taskID) {
+    logger.error('ID must be specified');
+    return HttpResponse.badRequest('ID must be specified');
   }
 
-  const taskId = event.pathParameters?.task_id;
-  if (!taskId) {
-    logger.error('Task id cannot be empty');
-    return HttpResponse.badRequest('Task id cannot be empty');
-  }
-
+  // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
   const taskRepository: TaskRepository = new DynamodbTaskRepository(
-      region,
-      tableName
+    region,
+    tableName
   );
 
   return taskRepository
-    .deleteTask(taskId)
-    .then(() => HttpResponse.accepted())
+    .getTask(taskID)
+    .then((task: Task | null) => {
+      return HttpResponse.ok(task);
+    })
     .catch((error: Error) => {
       logger.error(error.message);
       return HttpResponse.internalServerError(error.message);
