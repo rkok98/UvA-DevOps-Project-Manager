@@ -43,11 +43,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.internalServerError('Something went wrong');
   }
 
-  const accountId = event.requestContext.authorizer?.claims?.sub as string;
-  logger.addPersistentLogAttributes({
-    accountId: accountId,
-  });
-
   // Handle valid requests
   // Note: project_id from CDK projectsIdResource
   const taskID = event.pathParameters?.task_id;
@@ -66,11 +61,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   return taskRepository
     .getTask(taskID)
     .then((task: Task | null) => {
-      if (task && task.adminId === accountId) {
-        return HttpResponse.ok(task);
-      }
-
-      return HttpResponse.notFound();
+      return HttpResponse.ok(task);
     })
     .catch((error: Error) => {
       logger.error(error.message);
