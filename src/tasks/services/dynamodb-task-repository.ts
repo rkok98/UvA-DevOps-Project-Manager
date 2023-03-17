@@ -1,9 +1,10 @@
 // The DynamoDB database repository:
 // Table of tasks in the DB.
 // Handling of creating, getting, updating, and deleting tasks in the table.
-import { DeleteItemCommand, DynamoDBClient,
+import {
+  DeleteItemCommand, DynamoDBClient,
   GetItemCommand,
-  PutItemCommand,
+  PutItemCommand, ScanCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { TaskRepository } from './task-repository';
@@ -62,5 +63,26 @@ export class DynamodbTaskRepository implements TaskRepository {
     });
 
     return this.client.send(putRequest).then();
+  }
+
+  async getTasksByProjectId(projectId: string): Promise<Task[]> {
+    const command = new ScanCommand({
+      TableName: this.tableName,
+      FilterExpression: '#projectId = :projectId',
+      ExpressionAttributeNames: {
+        '#projectId': 'projectId',
+      },
+      ExpressionAttributeValues: {
+        ':projectId': {
+          S: projectId,
+        },
+      },
+    });
+
+    const response = await this.client.send(command);
+
+    return (
+        response.Items?.map((response) => unmarshall(response) as Task) ?? []
+    );
   }
 }
