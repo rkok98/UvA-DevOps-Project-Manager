@@ -29,6 +29,7 @@ export class TaskConstruct extends Construct {
   public readonly createTaskHandler: NodejsFunction;
   public readonly updateTaskHandler: NodejsFunction;
   public readonly deleteTaskHandler: NodejsFunction;
+  public readonly getTaskHandler: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: TaskStackProps) {
     super(scope, id);
@@ -63,6 +64,13 @@ export class TaskConstruct extends Construct {
     this.updateTaskHandler = this.createUpdateTaskHandler(
         'update-task-handler',
         props.api,
+        tasksIdResource,
+        props.authorizer,
+        this.table
+    );
+
+    this.getTaskHandler = this.createGetTaskHandler(
+        'get-task-handler',
         tasksIdResource,
         props.authorizer,
         this.table
@@ -190,6 +198,33 @@ export class TaskConstruct extends Construct {
       requestModels: {
         'application/json': updateTaskModel,
       },
+      authorizer,
+    });
+
+    return handler;
+  }
+
+  private createGetTaskHandler(
+      id: string,
+      tasksResource: IResource,
+      authorizer: CognitoUserPoolsAuthorizer,
+      table: Table
+  ): NodejsFunction {
+    const handler = new NodejsFunction(this, getEnv(this, id), {
+      functionName: getEnv(this, 'get-task'),
+      environment: {
+        DYNAMODB_TABLE_NAME: table.tableName,
+      },
+      runtime: Runtime.NODEJS_18_X,
+      entry: path.join(
+          __dirname,
+          '/../../src/tasks/handlers/get-task-handler.ts'
+      ),
+    });
+
+    table.grantReadWriteData(handler);
+
+    tasksResource.addMethod('GET', new LambdaIntegration(handler), {
       authorizer,
     });
 
