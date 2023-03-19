@@ -7,4 +7,5 @@ export interface Task {
   dateTime: string;
   createdBy: string;
   adminId: string;
+  state: string;
 }

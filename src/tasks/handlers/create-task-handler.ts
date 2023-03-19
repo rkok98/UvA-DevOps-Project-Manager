@@ -54,15 +54,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.badRequest('Project id cannot be empty');
   }
 
-  const { title, description, dateTime, createdBy } = JSON.parse(event.body) as CreateTaskBody;
+  const { title, description, state } = JSON.parse(event.body) as CreateTaskBody;
   const task: Task = {
     id: randomUUID(),
     projectId: projectIdPath,
     adminId: accountId!,
     title,
     description,
-    dateTime,
-    createdBy,
+    dateTime: Date.now().toString(),
+    createdBy: accountId!,
+    state,
   };
 
   const taskRepository: TaskRepository = new DynamodbTaskRepository(
