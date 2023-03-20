@@ -62,6 +62,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     task.id = taskId;
     task.projectId = projectId;
     task.adminId = accountId;
+    task.createdBy = accountId;
+    task.dateTime = Date.now().toString();
 
     const taskRepository: TaskRepository = new DynamodbTaskRepository(
         region,
