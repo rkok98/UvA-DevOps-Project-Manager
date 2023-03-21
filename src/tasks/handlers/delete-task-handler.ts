@@ -37,19 +37,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const projectId = event.pathParameters?.project_id;
   if (!projectId) {
-    logger.error('Project id cannot be empty');
-    return HttpResponse.badRequest('Project id cannot be empty');
+    logger.error('Project ID cannot be empty');
+    return HttpResponse.badRequest('Project ID cannot be empty');
   }
 
   const taskId = event.pathParameters?.task_id;
   if (!taskId) {
-    logger.error('Task id cannot be empty');
-    return HttpResponse.badRequest('Task id cannot be empty');
+    logger.error('Task ID cannot be empty');
+    return HttpResponse.badRequest('Task ID cannot be empty');
   }
 
   const taskRepository: TaskRepository = new DynamodbTaskRepository(
-      region,
-      tableName
+    region,
+    tableName
   );
 
   return taskRepository
@@ -60,3 +60,5 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return HttpResponse.internalServerError(error.message);
     });
 };
+
+export default handler;
