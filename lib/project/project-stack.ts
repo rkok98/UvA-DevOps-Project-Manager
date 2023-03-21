@@ -11,7 +11,8 @@ import {
   CognitoUserPoolsAuthorizer,
   IResource,
   LambdaIntegration,
-  Model, RequestValidator,
+  Model,
+  RequestValidator,
   RestApi,
 } from 'aws-cdk-lib/aws-apigateway';
 import { CreateProjectModel, UpdateProjectModel } from './project-models';
@@ -69,11 +70,11 @@ export class ProjectConstruct extends Construct {
     );
 
     this.createProjectHandler = this.createUpdateProjectHandler(
-        'update-project-handler',
-        props.api,
-        projectsIdResource,
-        props.authorizer,
-        this.table
+      'update-project-handler',
+      props.api,
+      projectsIdResource,
+      props.authorizer,
+      this.table
     );
   }
 
@@ -121,7 +122,7 @@ export class ProjectConstruct extends Construct {
 
     const validator = new RequestValidator(this, 'create-project-validator', {
       validateRequestBody: true,
-      restApi: api
+      restApi: api,
     });
 
     projectsResource.addMethod('POST', new LambdaIntegration(handler), {
@@ -217,11 +218,11 @@ export class ProjectConstruct extends Construct {
   }
 
   private createUpdateProjectHandler(
-      id: string,
-      api: RestApi,
-      updateProjectsResource: IResource,
-      authorizer: CognitoUserPoolsAuthorizer,
-      table: Table
+    id: string,
+    api: RestApi,
+    updateProjectsResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
+    table: Table
   ): NodejsFunction {
     const handler = new NodejsFunction(this, getEnv(this, id), {
       functionName: getEnv(this, 'update-project'),
@@ -230,21 +231,21 @@ export class ProjectConstruct extends Construct {
       },
       runtime: Runtime.NODEJS_18_X,
       entry: path.join(
-          __dirname,
-          '/../../src/projects/handlers/update-project-handler.ts'
+        __dirname,
+        '/../../src/projects/handlers/update-project-handler.ts'
       ),
     });
 
     table.grantReadWriteData(handler);
 
     const updateProjectModel: Model = api.addModel(
-        'UpdateProjectModel',
-        UpdateProjectModel
+      'UpdateProjectModel',
+      UpdateProjectModel
     );
 
     const validator = new RequestValidator(this, 'update-project-validator', {
       validateRequestBody: true,
-      restApi: api
+      restApi: api,
     });
 
     updateProjectsResource.addMethod('PUT', new LambdaIntegration(handler), {

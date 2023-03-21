@@ -11,7 +11,8 @@ import {
   CognitoUserPoolsAuthorizer,
   IResource,
   LambdaIntegration,
-  Model, RequestValidator,
+  Model,
+  RequestValidator,
   RestApi,
 } from 'aws-cdk-lib/aws-apigateway';
 import { CreateTaskModel, UpdateTaskModel } from './task-models';
@@ -35,9 +36,10 @@ export class TaskConstruct extends Construct {
   constructor(scope: Construct, id: string, props: TaskStackProps) {
     super(scope, id);
 
-    const tasksResource = props.api.root.getResource('projects')
-        ?.getResource('{project_id}')
-        ?.addResource('tasks');
+    const tasksResource = props.api.root
+      .getResource('projects')
+      ?.getResource('{project_id}')
+      ?.addResource('tasks');
 
     if (!tasksResource) {
       throw new Error('projects/{project_id}/tasks not defined');
@@ -56,32 +58,32 @@ export class TaskConstruct extends Construct {
     );
 
     this.deleteTaskHandler = this.createDeleteTaskHandler(
-        'delete-task-handler',
-        tasksIdResource,
-        props.authorizer,
-        this.table
+      'delete-task-handler',
+      tasksIdResource,
+      props.authorizer,
+      this.table
     );
 
     this.updateTaskHandler = this.createUpdateTaskHandler(
-        'update-task-handler',
-        props.api,
-        tasksIdResource,
-        props.authorizer,
-        this.table
+      'update-task-handler',
+      props.api,
+      tasksIdResource,
+      props.authorizer,
+      this.table
     );
 
     this.getTaskHandler = this.createGetTaskHandler(
-        'get-task-handler',
-        tasksIdResource,
-        props.authorizer,
-        this.table
+      'get-task-handler',
+      tasksIdResource,
+      props.authorizer,
+      this.table
     );
 
     this.getTasksHandler = this.createGetTasksHandler(
-        'get-tasks-handler',
-        tasksResource,
-        props.authorizer,
-        this.table
+      'get-tasks-handler',
+      tasksResource,
+      props.authorizer,
+      this.table
     );
   }
 
@@ -129,7 +131,7 @@ export class TaskConstruct extends Construct {
 
     const validator = new RequestValidator(this, 'create-task-validator', {
       validateRequestBody: true,
-      restApi: api
+      restApi: api,
     });
 
     tasksResource.addMethod('POST', new LambdaIntegration(handler), {
@@ -144,10 +146,10 @@ export class TaskConstruct extends Construct {
   }
 
   private createDeleteTaskHandler(
-      id: string,
-      tasksResource: IResource,
-      authorizer: CognitoUserPoolsAuthorizer,
-      table: Table
+    id: string,
+    tasksResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
+    table: Table
   ): NodejsFunction {
     const handler = new NodejsFunction(this, getEnv(this, id), {
       functionName: getEnv(this, 'delete-task'),
@@ -156,8 +158,8 @@ export class TaskConstruct extends Construct {
       },
       runtime: Runtime.NODEJS_18_X,
       entry: path.join(
-          __dirname,
-          '/../../src/tasks/handlers/delete-task-handler.ts'
+        __dirname,
+        '/../../src/tasks/handlers/delete-task-handler.ts'
       ),
     });
 
@@ -171,11 +173,11 @@ export class TaskConstruct extends Construct {
   }
 
   private createUpdateTaskHandler(
-      id: string,
-      api: RestApi,
-      updateTasksResource: IResource,
-      authorizer: CognitoUserPoolsAuthorizer,
-      table: Table
+    id: string,
+    api: RestApi,
+    updateTasksResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
+    table: Table
   ): NodejsFunction {
     const handler = new NodejsFunction(this, getEnv(this, id), {
       functionName: getEnv(this, 'update-task'),
@@ -184,21 +186,21 @@ export class TaskConstruct extends Construct {
       },
       runtime: Runtime.NODEJS_18_X,
       entry: path.join(
-          __dirname,
-          '/../../src/tasks/handlers/update-task-handler.ts'
+        __dirname,
+        '/../../src/tasks/handlers/update-task-handler.ts'
       ),
     });
 
     table.grantReadWriteData(handler);
 
     const updateTaskModel: Model = api.addModel(
-        'UpdateTaskModel',
-        UpdateTaskModel
+      'UpdateTaskModel',
+      UpdateTaskModel
     );
 
     const validator = new RequestValidator(this, 'update-task-validator', {
       validateRequestBody: true,
-      restApi: api
+      restApi: api,
     });
 
     updateTasksResource.addMethod('PUT', new LambdaIntegration(handler), {
@@ -213,10 +215,10 @@ export class TaskConstruct extends Construct {
   }
 
   private createGetTaskHandler(
-      id: string,
-      tasksResource: IResource,
-      authorizer: CognitoUserPoolsAuthorizer,
-      table: Table
+    id: string,
+    tasksResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
+    table: Table
   ): NodejsFunction {
     const handler = new NodejsFunction(this, getEnv(this, id), {
       functionName: getEnv(this, 'get-task'),
@@ -225,8 +227,8 @@ export class TaskConstruct extends Construct {
       },
       runtime: Runtime.NODEJS_18_X,
       entry: path.join(
-          __dirname,
-          '/../../src/tasks/handlers/get-task-handler.ts'
+        __dirname,
+        '/../../src/tasks/handlers/get-task-handler.ts'
       ),
     });
 
@@ -240,10 +242,10 @@ export class TaskConstruct extends Construct {
   }
 
   private createGetTasksHandler(
-      id: string,
-      tasksResource: IResource,
-      authorizer: CognitoUserPoolsAuthorizer,
-      table: Table
+    id: string,
+    tasksResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
+    table: Table
   ): NodejsFunction {
     const handler = new NodejsFunction(this, getEnv(this, id), {
       functionName: getEnv(this, 'get-tasks'),
@@ -252,8 +254,8 @@ export class TaskConstruct extends Construct {
       },
       runtime: Runtime.NODEJS_18_X,
       entry: path.join(
-          __dirname,
-          '/../../src/tasks/handlers/get-tasks-handler.ts'
+        __dirname,
+        '/../../src/tasks/handlers/get-tasks-handler.ts'
       ),
     });
 
