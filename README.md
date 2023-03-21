@@ -6,8 +6,8 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 ## Usage
 
-1. Copy the contents of `cdk.context.json.dist` to `cdk.context.json` and change `<YOUR_NAME>` to your first name in lowercase. 
-    For example: rene-dev or tessa-dev.
+1. Copy the contents of `cdk.context.json.dist` to `cdk.context.json` and change `<YOUR_NAME>` to your first name in lowercase.
+   For example: rene-dev or tessa-dev.
 
 ## Useful commands
 
@@ -19,6 +19,7 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 - `cdk synth` emits the synthesized CloudFormation template
 
 ## Useful urls
+
 - AWS SDK: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/
 - AWS CDK: https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html
 

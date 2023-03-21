@@ -2,9 +2,11 @@
 // Table of tasks in the DB.
 // Handling of creating, getting, updating, and deleting tasks in the table.
 import {
-  DeleteItemCommand, DynamoDBClient,
+  DeleteItemCommand,
+  DynamoDBClient,
   GetItemCommand,
-  PutItemCommand, ScanCommand,
+  PutItemCommand,
+  ScanCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { TaskRepository } from './task-repository';
@@ -42,16 +44,14 @@ export class DynamodbTaskRepository implements TaskRepository {
   }
 
   async deleteTask(id: string): Promise<void> {
-    const deleteRequest = new DeleteItemCommand(
-        {
-          TableName: this.tableName,
-          Key: {
-            id: {
-              S: id
-            }
-          }
-        }
-    );
+    const deleteRequest = new DeleteItemCommand({
+      TableName: this.tableName,
+      Key: {
+        id: {
+          S: id,
+        },
+      },
+    });
 
     return this.client.send(deleteRequest).then();
   }
@@ -82,7 +82,7 @@ export class DynamodbTaskRepository implements TaskRepository {
     const response = await this.client.send(command);
 
     return (
-        response.Items?.map((response) => unmarshall(response) as Task) ?? []
+      response.Items?.map((response) => unmarshall(response) as Task) ?? []
     );
   }
 }

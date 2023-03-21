@@ -21,7 +21,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm run test
+        run: npm run test:ci
 
       - name: Lint code with ESLint
         run: npm run lint

@@ -1,7 +1,7 @@
 // Creation of the API Gateway to catch/accept API calls (get, post, delete, etc.) used for managing the project stack.
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { Cors, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { ProjectConstruct } from './project/project-stack';
 import { UserStack } from './user/user-stack';
 import { getEnv } from '../bin/util/get-env';
@@ -49,7 +49,7 @@ export class DevopsProjectManagerStack extends Stack {
         ],
         allowMethods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
         allowCredentials: true,
-        allowOrigins: ['http://localhost:3000'],
+        allowOrigins: Cors.ALL_ORIGINS,
       },
     });
   }

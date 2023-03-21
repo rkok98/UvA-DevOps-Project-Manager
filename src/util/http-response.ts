@@ -13,7 +13,6 @@ export class HttpResponse {
     return HttpResponse.createResponse(204, body);
   }
 
-
   public static accepted(body?: any): APIGatewayProxyResult {
     return HttpResponse.createResponse(202, body);
   }

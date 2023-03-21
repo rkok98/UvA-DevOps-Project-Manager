@@ -1,0 +1,9 @@
+name: Create Pull Request
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  Test:
+    uses: ./.github/workflows/test-job.yml

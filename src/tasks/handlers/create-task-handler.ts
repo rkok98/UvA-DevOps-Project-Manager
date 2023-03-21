@@ -43,18 +43,20 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     accountId: accountId,
   });
 
+  const projectIdPath = event.pathParameters?.project_id;
+  if (!projectIdPath) {
+    logger.error('Project ID cannot be empty');
+    return HttpResponse.badRequest('Project ID cannot be empty');
+  }
+
   if (!event.body) {
     logger.error('Request body cannot be empty');
     return HttpResponse.badRequest('Request body cannot be empty');
   }
 
-  const projectIdPath = event.pathParameters?.project_id;
-  if (!projectIdPath) {
-    logger.error('Project id cannot be empty');
-    return HttpResponse.badRequest('Project id cannot be empty');
-  }
-
-  const { title, description, state } = JSON.parse(event.body) as CreateTaskBody;
+  const { title, description, state } = JSON.parse(
+    event.body
+  ) as CreateTaskBody;
   const task: Task = {
     id: randomUUID(),
     projectId: projectIdPath,
@@ -79,3 +81,5 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return HttpResponse.internalServerError(error.message);
     });
 };
+
+export default handler;
