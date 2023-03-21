@@ -11,13 +11,12 @@ import { RemovalPolicy } from 'aws-cdk-lib';
 import { getEnv } from '../../bin/util/get-env';
 import { CognitoUserPoolsAuthorizer } from 'aws-cdk-lib/aws-apigateway';
 
-// Creates user stack, with user pools 
+// Creates user stack, with user pools
 // Note 1: Pool may be coupled with specific selection of projects
 // Note 2: Users are tracked and saved in AWS Cognito, thus no table is created for the user stack.
 export class UserStack extends Construct {
   public userPool: UserPool;
   public userPoolClient: UserPoolClient;
-
   public authorizer: CognitoUserPoolsAuthorizer;
 
   public constructor(scope: Construct, id: string) {

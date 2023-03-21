@@ -53,8 +53,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const projectID = event.pathParameters?.project_id;
 
   if (!projectID) {
-    logger.error('ID must be specified');
-    return HttpResponse.badRequest('ID must be specified');
+    logger.error('Project ID cannot be empty');
+    return HttpResponse.badRequest('Project ID cannot be empty');
   }
 
   // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
@@ -77,3 +77,5 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return HttpResponse.internalServerError(error.message);
     });
 };
+
+export default handler;

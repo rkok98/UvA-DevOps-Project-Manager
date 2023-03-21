@@ -9,6 +9,11 @@ import { randomUUID } from 'crypto';
 
 const logger = new Logger({ serviceName: 'createProject' });
 
+/**
+ * Creates a new project
+ * @param event The API Gateway event
+ * @returns The API Gateway response
+ */
 export const handler: APIGatewayProxyHandler = async (event) => {
   logger.addPersistentLogAttributes({ body: event.body });
 
@@ -69,3 +74,5 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return HttpResponse.internalServerError(error.message);
     });
 };
+
+export default handler;

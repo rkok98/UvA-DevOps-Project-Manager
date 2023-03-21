@@ -55,3 +55,5 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return HttpResponse.internalServerError(error.message);
     });
 };
+
+export default handler;
