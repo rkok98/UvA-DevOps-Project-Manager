@@ -5,7 +5,7 @@ import { Construct } from 'constructs';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
 import {
   CognitoUserPoolsAuthorizer,
@@ -111,6 +111,7 @@ export class ProjectConstruct extends Construct {
         __dirname,
         '/../../src/projects/handlers/create-project-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
