@@ -6,8 +6,10 @@ import { DynamodbProjectRepository } from '../services/dynamodb-project-reposito
 import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
 import middy from '@middy/core';
 
-const logger = new Logger({ serviceName: 'deleteProject' });
-const tracer = new Tracer({ serviceName: 'createProject' });
+const serviceName = 'deleteProject';
+
+const logger = new Logger({ serviceName });
+const tracer = new Tracer({ serviceName });
 
 export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
   logger.addPersistentLogAttributes({ body: event.body });
