@@ -51,7 +51,8 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
   // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
   const taskRepository: TaskRepository = new DynamodbTaskRepository(
     region,
-    tableName
+    tableName,
+    tracer
   );
 
   return taskRepository
