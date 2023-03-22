@@ -28,9 +28,10 @@ export interface ProjectStackProps {
 export class ProjectConstruct extends Construct {
   public readonly table: Table;
   public readonly createProjectHandler: NodejsFunction;
+  public readonly deleteProjectHandler: NodejsFunction;
   public readonly getProjectHandler: NodejsFunction;
   public readonly getProjectsHandler: NodejsFunction;
-  public readonly deleteProjectHandler: NodejsFunction;
+  public readonly updateProjectHandler: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: ProjectStackProps) {
     super(scope, id);
@@ -44,6 +45,13 @@ export class ProjectConstruct extends Construct {
       'create-project-handler',
       props.api,
       projectsResource,
+      props.authorizer,
+      this.table
+    );
+
+    this.deleteProjectHandler = this.createDeleteProjectHandler(
+      'delete-project-handler',
+      projectsIdResource,
       props.authorizer,
       this.table
     );
@@ -62,14 +70,7 @@ export class ProjectConstruct extends Construct {
       this.table
     );
 
-    this.deleteProjectHandler = this.createDeleteProjectHandler(
-      'delete-project-handler',
-      projectsIdResource,
-      props.authorizer,
-      this.table
-    );
-
-    this.createProjectHandler = this.createUpdateProjectHandler(
+    this.updateProjectHandler = this.createUpdateProjectHandler(
       'update-project-handler',
       props.api,
       projectsIdResource,
