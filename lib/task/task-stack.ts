@@ -174,48 +174,6 @@ export class TaskConstruct extends Construct {
     return handler;
   }
 
-  private createUpdateTaskHandler(
-    id: string,
-    api: RestApi,
-    updateTasksResource: IResource,
-    authorizer: CognitoUserPoolsAuthorizer,
-    table: Table
-  ): NodejsFunction {
-    const handler = new NodejsFunction(this, getEnv(this, id), {
-      functionName: getEnv(this, 'update-task'),
-      environment: {
-        DYNAMODB_TABLE_NAME: table.tableName,
-      },
-      runtime: Runtime.NODEJS_18_X,
-      entry: path.join(
-        __dirname,
-        '/../../src/tasks/handlers/update-task-handler.ts'
-      ),
-    });
-
-    table.grantReadWriteData(handler);
-
-    const updateTaskModel: Model = api.addModel(
-      'UpdateTaskModel',
-      UpdateTaskModel
-    );
-
-    const validator = new RequestValidator(this, 'update-task-validator', {
-      validateRequestBody: true,
-      restApi: api,
-    });
-
-    updateTasksResource.addMethod('PUT', new LambdaIntegration(handler), {
-      requestValidator: validator,
-      requestModels: {
-        'application/json': updateTaskModel,
-      },
-      authorizer,
-    });
-
-    return handler;
-  }
-
   private createGetTaskHandler(
     id: string,
     tasksResource: IResource,
@@ -266,6 +224,49 @@ export class TaskConstruct extends Construct {
     table.grantReadWriteData(handler);
 
     tasksResource.addMethod('GET', new LambdaIntegration(handler), {
+      authorizer,
+    });
+
+    return handler;
+  }
+
+  private createUpdateTaskHandler(
+    id: string,
+    api: RestApi,
+    updateTasksResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
+    table: Table
+  ): NodejsFunction {
+    const handler = new NodejsFunction(this, getEnv(this, id), {
+      functionName: getEnv(this, 'update-task'),
+      environment: {
+        DYNAMODB_TABLE_NAME: table.tableName,
+      },
+      runtime: Runtime.NODEJS_18_X,
+      entry: path.join(
+        __dirname,
+        '/../../src/tasks/handlers/update-task-handler.ts'
+      ),
+      tracing: Tracing.ACTIVE,
+    });
+
+    table.grantReadWriteData(handler);
+
+    const updateTaskModel: Model = api.addModel(
+      'UpdateTaskModel',
+      UpdateTaskModel
+    );
+
+    const validator = new RequestValidator(this, 'update-task-validator', {
+      validateRequestBody: true,
+      restApi: api,
+    });
+
+    updateTasksResource.addMethod('PUT', new LambdaIntegration(handler), {
+      requestValidator: validator,
+      requestModels: {
+        'application/json': updateTaskModel,
+      },
       authorizer,
     });
 
