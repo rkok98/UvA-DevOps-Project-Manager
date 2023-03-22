@@ -11,8 +11,10 @@ import { DynamodbProjectRepository } from '../services/dynamodb-project-reposito
 import { CreateProjectBody } from '../models/create-project-body';
 import { Project } from '../models/project';
 
-const logger = new Logger({ serviceName: 'createProject' });
-const tracer = new Tracer({ serviceName: 'createProject' });
+const serviceName = 'createProject';
+
+const logger = new Logger({ serviceName });
+const tracer = new Tracer({ serviceName });
 
 /**
  * Creates a new project
