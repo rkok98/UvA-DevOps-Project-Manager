@@ -260,6 +260,7 @@ export class TaskConstruct extends Construct {
         __dirname,
         '/../../src/tasks/handlers/get-tasks-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
