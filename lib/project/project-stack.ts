@@ -209,6 +209,7 @@ export class ProjectConstruct extends Construct {
         __dirname,
         '/../../src/projects/handlers/get-projects-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
