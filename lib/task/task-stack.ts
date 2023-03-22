@@ -5,7 +5,7 @@ import { Construct } from 'constructs';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
 import {
   CognitoUserPoolsAuthorizer,
@@ -28,10 +28,10 @@ export interface TaskStackProps {
 export class TaskConstruct extends Construct {
   public readonly table: Table;
   public readonly createTaskHandler: NodejsFunction;
-  public readonly updateTaskHandler: NodejsFunction;
   public readonly deleteTaskHandler: NodejsFunction;
   public readonly getTaskHandler: NodejsFunction;
   public readonly getTasksHandler: NodejsFunction;
+  public readonly updateTaskHandler: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: TaskStackProps) {
     super(scope, id);
@@ -120,6 +120,7 @@ export class TaskConstruct extends Construct {
         __dirname,
         '/../../src/tasks/handlers/create-task-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
