@@ -5,7 +5,7 @@ import { Construct } from 'constructs';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
 import {
   CognitoUserPoolsAuthorizer,
@@ -28,10 +28,10 @@ export interface TaskStackProps {
 export class TaskConstruct extends Construct {
   public readonly table: Table;
   public readonly createTaskHandler: NodejsFunction;
-  public readonly updateTaskHandler: NodejsFunction;
   public readonly deleteTaskHandler: NodejsFunction;
   public readonly getTaskHandler: NodejsFunction;
   public readonly getTasksHandler: NodejsFunction;
+  public readonly updateTaskHandler: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: TaskStackProps) {
     super(scope, id);
@@ -120,6 +120,7 @@ export class TaskConstruct extends Construct {
         __dirname,
         '/../../src/tasks/handlers/create-task-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
@@ -161,53 +162,12 @@ export class TaskConstruct extends Construct {
         __dirname,
         '/../../src/tasks/handlers/delete-task-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
 
     tasksResource.addMethod('DELETE', new LambdaIntegration(handler), {
-      authorizer,
-    });
-
-    return handler;
-  }
-
-  private createUpdateTaskHandler(
-    id: string,
-    api: RestApi,
-    updateTasksResource: IResource,
-    authorizer: CognitoUserPoolsAuthorizer,
-    table: Table
-  ): NodejsFunction {
-    const handler = new NodejsFunction(this, getEnv(this, id), {
-      functionName: getEnv(this, 'update-task'),
-      environment: {
-        DYNAMODB_TABLE_NAME: table.tableName,
-      },
-      runtime: Runtime.NODEJS_18_X,
-      entry: path.join(
-        __dirname,
-        '/../../src/tasks/handlers/update-task-handler.ts'
-      ),
-    });
-
-    table.grantReadWriteData(handler);
-
-    const updateTaskModel: Model = api.addModel(
-      'UpdateTaskModel',
-      UpdateTaskModel
-    );
-
-    const validator = new RequestValidator(this, 'update-task-validator', {
-      validateRequestBody: true,
-      restApi: api,
-    });
-
-    updateTasksResource.addMethod('PUT', new LambdaIntegration(handler), {
-      requestValidator: validator,
-      requestModels: {
-        'application/json': updateTaskModel,
-      },
       authorizer,
     });
 
@@ -230,6 +190,7 @@ export class TaskConstruct extends Construct {
         __dirname,
         '/../../src/tasks/handlers/get-task-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
@@ -257,11 +218,55 @@ export class TaskConstruct extends Construct {
         __dirname,
         '/../../src/tasks/handlers/get-tasks-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
 
     tasksResource.addMethod('GET', new LambdaIntegration(handler), {
+      authorizer,
+    });
+
+    return handler;
+  }
+
+  private createUpdateTaskHandler(
+    id: string,
+    api: RestApi,
+    updateTasksResource: IResource,
+    authorizer: CognitoUserPoolsAuthorizer,
+    table: Table
+  ): NodejsFunction {
+    const handler = new NodejsFunction(this, getEnv(this, id), {
+      functionName: getEnv(this, 'update-task'),
+      environment: {
+        DYNAMODB_TABLE_NAME: table.tableName,
+      },
+      runtime: Runtime.NODEJS_18_X,
+      entry: path.join(
+        __dirname,
+        '/../../src/tasks/handlers/update-task-handler.ts'
+      ),
+      tracing: Tracing.ACTIVE,
+    });
+
+    table.grantReadWriteData(handler);
+
+    const updateTaskModel: Model = api.addModel(
+      'UpdateTaskModel',
+      UpdateTaskModel
+    );
+
+    const validator = new RequestValidator(this, 'update-task-validator', {
+      validateRequestBody: true,
+      restApi: api,
+    });
+
+    updateTasksResource.addMethod('PUT', new LambdaIntegration(handler), {
+      requestValidator: validator,
+      requestModels: {
+        'application/json': updateTaskModel,
+      },
       authorizer,
     });
 

@@ -1,15 +1,20 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { Logger } from '@aws-lambda-powertools/logger';
+import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
 import { HttpResponse } from '../../util/http-response';
 import { randomUUID } from 'crypto';
 import { CreateTaskBody } from '../models/create-task-body';
 import { Task } from '../models/task';
 import { TaskRepository } from '../services/task-repository';
 import { DynamodbTaskRepository } from '../services/dynamodb-task-repository';
+import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
+import middy from '@middy/core';
 
-const logger = new Logger({ serviceName: 'createTask' });
+const serviceName = 'createTask';
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+const logger = new Logger({ serviceName });
+const tracer = new Tracer({ serviceName });
+
+export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
   logger.addPersistentLogAttributes({ body: event.body });
 
   const region = process.env.AWS_REGION;
@@ -70,7 +75,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const taskRepository: TaskRepository = new DynamodbTaskRepository(
     region,
-    tableName
+    tableName,
+    tracer
   );
 
   return taskRepository
@@ -81,5 +87,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return HttpResponse.internalServerError(error.message);
     });
 };
+
+export const handler = middy(lambdaHandler)
+  .use(captureLambdaHandler(tracer))
+  .use(injectLambdaContext(logger));
 
 export default handler;

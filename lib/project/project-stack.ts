@@ -5,7 +5,7 @@ import { Construct } from 'constructs';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
 import {
   CognitoUserPoolsAuthorizer,
@@ -28,9 +28,10 @@ export interface ProjectStackProps {
 export class ProjectConstruct extends Construct {
   public readonly table: Table;
   public readonly createProjectHandler: NodejsFunction;
+  public readonly deleteProjectHandler: NodejsFunction;
   public readonly getProjectHandler: NodejsFunction;
   public readonly getProjectsHandler: NodejsFunction;
-  public readonly deleteProjectHandler: NodejsFunction;
+  public readonly updateProjectHandler: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: ProjectStackProps) {
     super(scope, id);
@@ -44,6 +45,13 @@ export class ProjectConstruct extends Construct {
       'create-project-handler',
       props.api,
       projectsResource,
+      props.authorizer,
+      this.table
+    );
+
+    this.deleteProjectHandler = this.createDeleteProjectHandler(
+      'delete-project-handler',
+      projectsIdResource,
       props.authorizer,
       this.table
     );
@@ -62,14 +70,7 @@ export class ProjectConstruct extends Construct {
       this.table
     );
 
-    this.deleteProjectHandler = this.createDeleteProjectHandler(
-      'delete-project-handler',
-      projectsIdResource,
-      props.authorizer,
-      this.table
-    );
-
-    this.createProjectHandler = this.createUpdateProjectHandler(
+    this.updateProjectHandler = this.createUpdateProjectHandler(
       'update-project-handler',
       props.api,
       projectsIdResource,
@@ -111,6 +112,7 @@ export class ProjectConstruct extends Construct {
         __dirname,
         '/../../src/projects/handlers/create-project-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
@@ -152,6 +154,7 @@ export class ProjectConstruct extends Construct {
         __dirname,
         '/../../src/projects/handlers/delete-project-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
@@ -179,6 +182,7 @@ export class ProjectConstruct extends Construct {
         __dirname,
         '/../../src/projects/handlers/get-project-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
@@ -206,6 +210,7 @@ export class ProjectConstruct extends Construct {
         __dirname,
         '/../../src/projects/handlers/get-projects-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);

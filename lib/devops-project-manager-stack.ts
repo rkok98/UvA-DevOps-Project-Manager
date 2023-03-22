@@ -51,6 +51,9 @@ export class DevopsProjectManagerStack extends Stack {
         allowCredentials: true,
         allowOrigins: Cors.ALL_ORIGINS,
       },
+      deployOptions: {
+        tracingEnabled: true,
+      },
     });
   }
 }

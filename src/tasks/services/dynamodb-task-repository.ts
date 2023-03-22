@@ -11,13 +11,20 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { TaskRepository } from './task-repository';
 import { Task } from '../models/task';
+import { Tracer } from '@aws-lambda-powertools/tracer';
 
 export class DynamodbTaskRepository implements TaskRepository {
   private readonly client: DynamoDBClient;
   private readonly tableName: string;
 
-  constructor(region: string, tableName: string) {
-    this.client = new DynamoDBClient({ region });
+  constructor(region: string, tableName: string, tracer?: Tracer) {
+    const client = new DynamoDBClient({ region });
+
+    if (tracer) {
+      tracer.captureAWSv3Client(client);
+    }
+
+    this.client = client;
     this.tableName = tableName;
   }
 

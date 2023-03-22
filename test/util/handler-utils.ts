@@ -47,7 +47,7 @@ export const mockContext: Context = {
   logGroupName: '',
   logStreamName: '',
   getRemainingTimeInMillis: function (): number {
-    throw new Error('Function not implemented.');
+    return 0;
   },
   done: function (error?: Error | undefined, result?: any): void {
     throw new Error('Function not implemented.');

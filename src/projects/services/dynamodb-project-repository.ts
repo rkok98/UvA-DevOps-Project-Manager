@@ -11,13 +11,20 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { ProjectRepository } from './project-repository';
+import { Tracer } from '@aws-lambda-powertools/tracer';
 
 export class DynamodbProjectRepository implements ProjectRepository {
   private readonly client: DynamoDBClient;
   private readonly tableName: string;
 
-  constructor(region: string, tableName: string) {
-    this.client = new DynamoDBClient({ region });
+  constructor(region: string, tableName: string, tracer?: Tracer) {
+    const client = new DynamoDBClient({ region });
+
+    if (tracer) {
+      tracer.captureAWSv3Client(client);
+    }
+
+    this.client = client;
     this.tableName = tableName;
   }
 

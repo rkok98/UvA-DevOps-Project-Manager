@@ -1,12 +1,17 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { Logger } from '@aws-lambda-powertools/logger';
+import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
 import { ProjectRepository } from '../services/project-repository';
 import { HttpResponse } from '../../util/http-response';
 import { DynamodbProjectRepository } from '../services/dynamodb-project-repository';
+import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
+import middy from '@middy/core';
 
-const logger = new Logger({ serviceName: 'getProjects' });
+const serviceName = 'getProjects';
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+const logger = new Logger({ serviceName });
+const tracer = new Tracer({ serviceName });
+
+export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
   logger.addPersistentLogAttributes({ body: event.body });
 
   const region = process.env.AWS_REGION;
@@ -44,7 +49,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
   const projectRepository: ProjectRepository = new DynamodbProjectRepository(
     region,
-    tableName
+    tableName,
+    tracer
   );
 
   return projectRepository
@@ -55,5 +61,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return HttpResponse.internalServerError(error.message);
     });
 };
+
+export const handler = middy(lambdaHandler)
+  .use(captureLambdaHandler(tracer))
+  .use(injectLambdaContext(logger));
 
 export default handler;

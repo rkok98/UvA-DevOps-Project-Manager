@@ -1,20 +1,27 @@
+import middy from '@middy/core';
+
+import { randomUUID } from 'crypto';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { Logger } from '@aws-lambda-powertools/logger';
+import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
+import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
+
 import { ProjectRepository } from '../services/project-repository';
 import { HttpResponse } from '../../util/http-response';
 import { DynamodbProjectRepository } from '../services/dynamodb-project-repository';
 import { CreateProjectBody } from '../models/create-project-body';
 import { Project } from '../models/project';
-import { randomUUID } from 'crypto';
 
-const logger = new Logger({ serviceName: 'createProject' });
+const serviceName = 'createProject';
+
+const logger = new Logger({ serviceName });
+const tracer = new Tracer({ serviceName });
 
 /**
  * Creates a new project
  * @param event The API Gateway event
  * @returns The API Gateway response
  */
-export const handler: APIGatewayProxyHandler = async (event) => {
+const lambdaHandler: APIGatewayProxyHandler = async (event) => {
   logger.addPersistentLogAttributes({ body: event.body });
 
   const region = process.env.AWS_REGION;
@@ -36,14 +43,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     );
   }
 
-  if (!event.requestContext.authorizer?.claims?.sub) {
+  const accountId = event.requestContext.authorizer?.claims?.sub as string;
+
+  if (!accountId) {
     logger.error('No provided sub', {
       authorizer: event.requestContext.authorizer,
     });
     return HttpResponse.internalServerError('Something went wrong');
   }
 
-  const accountId = event.requestContext.authorizer?.claims?.sub as string;
   logger.addPersistentLogAttributes({
     accountId: accountId,
   });
@@ -56,14 +64,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const { name, description } = JSON.parse(event.body) as CreateProjectBody;
   const project: Project = {
     id: randomUUID(),
-    adminId: accountId!,
+    adminId: accountId,
     name,
     description,
   };
 
   const projectRepository: ProjectRepository = new DynamodbProjectRepository(
     region,
-    tableName
+    tableName,
+    tracer
   );
 
   return projectRepository
@@ -74,5 +83,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return HttpResponse.internalServerError(error.message);
     });
 };
+
+export const handler = middy(lambdaHandler)
+  .use(captureLambdaHandler(tracer))
+  .use(injectLambdaContext(logger));
 
 export default handler;
