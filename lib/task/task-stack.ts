@@ -162,6 +162,7 @@ export class TaskConstruct extends Construct {
         __dirname,
         '/../../src/tasks/handlers/delete-task-handler.ts'
       ),
+      tracing: Tracing.ACTIVE,
     });
 
     table.grantReadWriteData(handler);
