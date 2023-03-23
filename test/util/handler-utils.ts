@@ -49,13 +49,13 @@ export const mockContext: Context = {
   getRemainingTimeInMillis: function (): number {
     return 0;
   },
-  done: function (error?: Error | undefined, result?: any): void {
+  done: function (): void {
     throw new Error('Function not implemented.');
   },
-  fail: function (error: string | Error): void {
+  fail: function (): void {
     throw new Error('Function not implemented.');
   },
-  succeed: function (messageOrObject: any): void {
+  succeed: function (): void {
     throw new Error('Function not implemented.');
   },
 };

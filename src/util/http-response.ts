@@ -1,41 +1,41 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 
 export class HttpResponse {
-  static ok(body?: any): APIGatewayProxyResult {
+  static ok<T>(body?: T): APIGatewayProxyResult {
     return HttpResponse.createResponse(200, body);
   }
 
-  public static created(body?: any): APIGatewayProxyResult {
+  public static created<T>(body?: T): APIGatewayProxyResult {
     return HttpResponse.createResponse(201, body);
   }
 
-  public static updated(body?: any): APIGatewayProxyResult {
+  public static updated<T>(body?: T): APIGatewayProxyResult {
     return HttpResponse.createResponse(204, body);
   }
 
-  public static accepted(body?: any): APIGatewayProxyResult {
+  public static accepted<T>(body?: T): APIGatewayProxyResult {
     return HttpResponse.createResponse(202, body);
   }
 
-  public static internalServerError(body?: any): APIGatewayProxyResult {
+  public static internalServerError<T>(body?: T): APIGatewayProxyResult {
     return HttpResponse.createResponse(500, body);
   }
 
-  public static badRequest(body?: any): APIGatewayProxyResult {
+  public static badRequest<T>(body?: T): APIGatewayProxyResult {
     return HttpResponse.createResponse(400, body);
   }
 
-  public static unauthorized(body?: any): APIGatewayProxyResult {
+  public static unauthorized<T>(body?: T): APIGatewayProxyResult {
     return HttpResponse.createResponse(401, body);
   }
 
-  public static notFound(body?: any): APIGatewayProxyResult {
+  public static notFound<T>(body?: T): APIGatewayProxyResult {
     return HttpResponse.createResponse(404, body);
   }
 
-  private static createResponse(
+  private static createResponse<T>(
     statusCode: number,
-    body?: any
+    body?: T
   ): APIGatewayProxyResult {
     return { statusCode, body: JSON.stringify(body) };
   }
