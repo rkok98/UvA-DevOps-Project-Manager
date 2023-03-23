@@ -9,6 +9,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "test:ci": "export POWERTOOLS_DEV=true && npx jest --silent",
+    "coverage:ci": "export POWERTOOLS_DEV=true && npx jest --silent --coverage",
     "cdk": "cdk",
     "lint": "eslint --max-warnings=0 --ignore-path .eslintignore --ext .js,.ts .",
     "prettier:check": "prettier --check \"**/*.{js,json,md,ts,yml}\"",

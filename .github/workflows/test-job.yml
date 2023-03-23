@@ -23,8 +23,8 @@ jobs:
       - name: Run tests
         run: npm run test:ci
 
-      - name: Jest coverage report
-        uses: ArtiomTr/jest-coverage-report-action@v2.2.2
+      - name: Run coverage
+        uses: npm run coverage:ci
 
       - name: Lint code with ESLint
         run: npm run lint
