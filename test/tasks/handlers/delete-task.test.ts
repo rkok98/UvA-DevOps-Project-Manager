@@ -5,7 +5,7 @@ import {
   mockContext,
   mockEvent,
   mockRequestContext,
-} from '../../util/handler-utils';
+} from '../../fixtures/lambda-handler-fixtures';
 import { mockClient } from 'aws-sdk-client-mock';
 import { DeleteItemCommand, DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
