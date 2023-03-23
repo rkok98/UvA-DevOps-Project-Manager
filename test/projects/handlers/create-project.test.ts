@@ -109,6 +109,36 @@ describe('Create Projects Handler Integration Tests', () => {
     );
   });
 
+  test('Internal Server Error is returned when something goes wrong within DynamoDB', async () => {
+    const event = {
+      ...mockEvent,
+      requestContext: {
+        ...mockRequestContext,
+        authorizer: {
+          claims: {
+            sub: 'test-admin-id',
+          },
+        },
+      },
+      body: JSON.stringify({
+        name: 'Test project',
+        description: 'Test description',
+      }),
+    };
+
+    const errorMessage = 'Something goes wrong';
+
+    ddbMock.on(PutItemCommand).rejects(new Error(errorMessage));
+
+    const res = await handler(
+      event,
+      mockContext,
+      {} as Callback<APIGatewayProxyResult>
+    );
+
+    expect(res).toEqual(HttpResponse.internalServerError(errorMessage));
+  });
+
   test('Successful returns created', async () => {
     const event = {
       ...mockEvent,

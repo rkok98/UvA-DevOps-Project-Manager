@@ -37,6 +37,6 @@ export class HttpResponse {
     statusCode: number,
     body?: T
   ): APIGatewayProxyResult {
-    return { statusCode, body: JSON.stringify(body) };
+    return { statusCode, body: body ? JSON.stringify(body) : '' };
   }
 }

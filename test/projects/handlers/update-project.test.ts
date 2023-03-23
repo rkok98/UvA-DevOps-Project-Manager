@@ -87,6 +87,31 @@ describe('Update Projects Handler Integration Tests', () => {
     );
   });
 
+  test('Missing Project ID in URL Path Parameters returns Bad Request', async () => {
+    const event = {
+      ...mockEvent,
+      requestContext: {
+        ...mockRequestContext,
+        authorizer: {
+          claims: {
+            sub: 'test-admin-id',
+          },
+        },
+      },
+      pathParameters: {
+        project_id: undefined,
+      },
+    };
+
+    const res = await handler(
+      event,
+      mockContext,
+      {} as Callback<APIGatewayProxyResult>
+    );
+
+    expect(res).toEqual(HttpResponse.badRequest('Project ID cannot be empty'));
+  });
+
   test('Empty body returns bad request', async () => {
     const event = {
       ...mockEvent,
@@ -112,6 +137,39 @@ describe('Update Projects Handler Integration Tests', () => {
     expect(res).toEqual(
       HttpResponse.badRequest('Request body cannot be empty')
     );
+  });
+
+  test('Internal Server Error is returned when something goes wrong within DynamoDB', async () => {
+    const event = {
+      ...mockEvent,
+      requestContext: {
+        ...mockRequestContext,
+        authorizer: {
+          claims: {
+            sub: 'test-admin-id',
+          },
+        },
+      },
+      pathParameters: {
+        project_id: 'test-id',
+      },
+      body: JSON.stringify({
+        name: 'updated-test-name',
+        description: 'updated-test-description',
+      }),
+    };
+
+    const errorMessage = 'Something goes wrong';
+
+    ddbMock.on(PutItemCommand).rejects(new Error(errorMessage));
+
+    const res = await handler(
+      event,
+      mockContext,
+      {} as Callback<APIGatewayProxyResult>
+    );
+
+    expect(res).toEqual(HttpResponse.internalServerError(errorMessage));
   });
 
   test('Successful returns created', async () => {

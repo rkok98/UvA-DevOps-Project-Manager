@@ -48,8 +48,8 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
 
   const projectId = event.pathParameters?.project_id;
   if (!projectId) {
-    logger.error('Project id cannot be empty');
-    return HttpResponse.badRequest('Project id cannot be empty');
+    logger.error('Project ID cannot be empty');
+    return HttpResponse.badRequest('Project ID cannot be empty');
   }
 
   if (!event.body) {

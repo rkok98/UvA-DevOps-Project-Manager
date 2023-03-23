@@ -36,11 +36,6 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
     );
   }
 
-  if (!event.pathParameters) {
-    logger.error('Path parameters cannot be null');
-    return HttpResponse.badRequest('Path parameters cannot be null');
-  }
-
   if (!event.requestContext.authorizer?.claims?.sub) {
     logger.error('No provided sub', {
       authorizer: event.requestContext.authorizer,

@@ -146,6 +146,35 @@ describe('Get Project Handler Integration Tests', () => {
     expect(res).toEqual(HttpResponse.notFound());
   });
 
+  test('Internal Server Error is returned when something goes wrong within DynamoDB', async () => {
+    const event = {
+      ...mockEvent,
+      requestContext: {
+        ...mockRequestContext,
+        authorizer: {
+          claims: {
+            sub: 'test-admin-id',
+          },
+        },
+      },
+      pathParameters: {
+        project_id: 'test-id',
+      },
+    };
+
+    const errorMessage = 'Something goes wrong';
+
+    ddbMock.on(GetItemCommand).rejects(new Error(errorMessage));
+
+    const res = await handler(
+      event,
+      mockContext,
+      {} as Callback<APIGatewayProxyResult>
+    );
+
+    expect(res).toEqual(HttpResponse.internalServerError(errorMessage));
+  });
+
   test('Successfully returns Project', async () => {
     const event = {
       ...mockEvent,
