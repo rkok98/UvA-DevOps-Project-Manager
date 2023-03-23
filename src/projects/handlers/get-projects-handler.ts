@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
 import { ProjectRepository } from '../services/project-repository';
-import { HttpResponse } from '../../util/http-response';
+import { HttpResponse } from '../../http-util/http-response';
 import { DynamodbProjectRepository } from '../services/dynamodb-project-repository';
 import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
 import middy from '@middy/core';

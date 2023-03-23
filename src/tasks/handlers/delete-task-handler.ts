@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
-import { HttpResponse } from '../../util/http-response';
+import { HttpResponse } from '../../http-util/http-response';
 import { TaskRepository } from '../services/task-repository';
 import { DynamodbTaskRepository } from '../services/dynamodb-task-repository';
 import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';

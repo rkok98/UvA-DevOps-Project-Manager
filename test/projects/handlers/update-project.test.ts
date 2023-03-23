@@ -1,6 +1,6 @@
 import handler from '../../../src/projects/handlers/update-project-handler';
 import { APIGatewayProxyResult, Callback } from 'aws-lambda';
-import { HttpResponse } from '../../../src/util/http-response';
+import { HttpResponse } from '../../../src/http-util/http-response';
 import {
   mockContext,
   mockEvent,

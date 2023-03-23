@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
-import { HttpResponse } from '../../util/http-response';
+import { HttpResponse } from '../../http-util/http-response';
 import { randomUUID } from 'crypto';
 import { CreateTaskBody } from '../models/create-task-body';
 import { Task } from '../models/task';
