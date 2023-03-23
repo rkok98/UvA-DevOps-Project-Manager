@@ -16,7 +16,7 @@ describe('HttpResponse', () => {
     (
       method: <T>(body?: T) => APIGatewayProxyResult,
       statusCode: number,
-      message: String
+      message: string
     ) => {
       it(`should return a ${statusCode} status code and the provided body message ${message}`, () => {
         const body = { message };
