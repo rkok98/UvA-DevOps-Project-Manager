@@ -24,7 +24,7 @@ jobs:
         run: npm run test:ci
 
       - name: Run coverage
-        uses: npm run coverage:ci
+        run: npm run coverage:ci
 
       - name: Lint code with ESLint
         run: npm run lint
