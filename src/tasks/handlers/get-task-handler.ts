@@ -57,7 +57,6 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.badRequest('Task ID must be specified');
   }
 
-  // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
   const taskRepository: TaskRepository = new DynamodbTaskRepository(
     region,
     tableName,

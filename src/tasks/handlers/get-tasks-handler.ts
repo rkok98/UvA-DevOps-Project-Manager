@@ -48,7 +48,6 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.badRequest('Project ID cannot be empty');
   }
 
-  // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
   const taskRepository: TaskRepository = new DynamodbTaskRepository(
     region,
     tableName,

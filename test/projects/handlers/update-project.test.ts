@@ -154,8 +154,8 @@ describe('Update Projects Handler Integration Tests', () => {
         project_id: 'test-id',
       },
       body: JSON.stringify({
-        name: 'updated-test-name',
-        description: 'updated-test-description',
+        name: 'noContent-test-name',
+        description: 'noContent-test-description',
       }),
     };
 
@@ -187,8 +187,8 @@ describe('Update Projects Handler Integration Tests', () => {
         project_id: 'test-id',
       },
       body: JSON.stringify({
-        name: 'updated-test-name',
-        description: 'updated-test-description',
+        name: 'noContent-test-name',
+        description: 'noContent-test-description',
       }),
     };
 
@@ -200,6 +200,6 @@ describe('Update Projects Handler Integration Tests', () => {
       {} as Callback<APIGatewayProxyResult>
     );
 
-    expect(res).toEqual(HttpResponse.updated());
+    expect(res).toEqual(HttpResponse.noContent());
   });
 });

@@ -19,7 +19,6 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
   const region = process.env.AWS_REGION;
   const tableName = process.env.DYNAMODB_TABLE_NAME;
 
-  // Error handling: HTTP messages
   if (!region) {
     logger.error('AWS_REGION was not specified in the environment variables');
     return HttpResponse.internalServerError(
@@ -48,8 +47,6 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
     accountId: accountId,
   });
 
-  // Handle valid requests
-  // Note: project_id from CDK projectsIdResource
   const projectID = event.pathParameters?.project_id;
 
   if (!projectID) {
@@ -57,7 +54,6 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.badRequest('Project ID cannot be empty');
   }
 
-  // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
   const projectRepository: ProjectRepository = new DynamodbProjectRepository(
     region,
     tableName,

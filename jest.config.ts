@@ -1,6 +1,7 @@
 import type { Config } from '@jest/types';
 
 const config: Config.InitialOptions = {
+  coveragePathIgnorePatterns: ['<rootDir>/test/fixtures/'],
   coverageThreshold: {
     global: {
       branches: 80,

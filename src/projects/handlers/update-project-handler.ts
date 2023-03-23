@@ -69,7 +69,7 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
 
   return projectRepository
     .updateProject(project)
-    .then(() => HttpResponse.updated())
+    .then(() => HttpResponse.noContent())
     .catch((error: Error) => {
       logger.error(error.message);
       return HttpResponse.internalServerError(error.message);

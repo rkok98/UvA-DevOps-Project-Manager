@@ -6,7 +6,7 @@ describe('HttpResponse', () => {
     [HttpResponse.ok, 200, 'OK'],
     [HttpResponse.created, 201, 'Created'],
     [HttpResponse.accepted, 202, 'Accepted'],
-    [HttpResponse.updated, 204, 'No Content'],
+    [HttpResponse.noContent, 204, 'No Content'],
     [HttpResponse.badRequest, 400, 'Bad Request'],
     [HttpResponse.unauthorized, 401, 'Unauthorized'],
     [HttpResponse.notFound, 404, 'Not Found'],

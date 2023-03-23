@@ -28,7 +28,6 @@ export class DynamodbProjectRepository implements ProjectRepository {
     this.tableName = tableName;
   }
 
-  // Creates a new project object in table
   async createProject(project: Project): Promise<void> {
     const putRequest = new PutItemCommand({
       TableName: this.tableName,
@@ -38,7 +37,6 @@ export class DynamodbProjectRepository implements ProjectRepository {
     return this.client.send(putRequest).then();
   }
 
-  // Obtains an existing project from table according to id
   async getProject(id: string): Promise<Project | null> {
     const getRequest = new GetItemCommand({
       TableName: this.tableName,
@@ -52,7 +50,6 @@ export class DynamodbProjectRepository implements ProjectRepository {
     return unmarshall(response.Item) as Project;
   }
 
-  // Deletes a specific existing project from table
   async deleteProject(id: string): Promise<void> {
     const deleteRequest = new DeleteItemCommand({
       TableName: this.tableName,
@@ -66,7 +63,6 @@ export class DynamodbProjectRepository implements ProjectRepository {
     return this.client.send(deleteRequest).then();
   }
 
-  // Updates a specific existing project from table (body: title, description)
   async updateProject(project: Project): Promise<void> {
     const putRequest = new PutItemCommand({
       TableName: this.tableName,
