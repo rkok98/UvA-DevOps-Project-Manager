@@ -10,7 +10,7 @@
     "test": "jest",
     "test:ci": "export POWERTOOLS_DEV=true && npx jest --silent",
     "cdk": "cdk",
-    "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
+    "lint": "eslint --max-warnings=0 --ignore-path .eslintignore --ext .js,.ts .",
     "prettier:check": "prettier --check \"**/*.{js,json,md,ts,yml}\"",
     "prettier:format": "prettier --write \"**/*.{js,json,md,ts,yml}\""
   },
