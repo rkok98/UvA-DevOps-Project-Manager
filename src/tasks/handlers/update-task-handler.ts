@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
-import { HttpResponse } from '../../util/http-response';
+import { HttpResponse } from '../../http-util/http-response';
 import { Task } from '../models/task';
 import { TaskRepository } from '../services/task-repository';
 import { DynamodbTaskRepository } from '../services/dynamodb-task-repository';
@@ -78,7 +78,7 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
 
   return taskRepository
     .updateTask(task)
-    .then(() => HttpResponse.updated())
+    .then(() => HttpResponse.noContent())
     .catch((error: Error) => {
       logger.error(error.message);
       return HttpResponse.internalServerError(error.message);

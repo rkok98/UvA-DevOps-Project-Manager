@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
 import { ProjectRepository } from '../services/project-repository';
-import { HttpResponse } from '../../util/http-response';
+import { HttpResponse } from '../../http-util/http-response';
 import { DynamodbProjectRepository } from '../services/dynamodb-project-repository';
 import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
 import middy from '@middy/core';
@@ -17,7 +17,6 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
   const region = process.env.AWS_REGION;
   const tableName = process.env.DYNAMODB_TABLE_NAME;
 
-  // Error handling: HTTP messages
   if (!region) {
     logger.error('AWS_REGION was not specified in the environment variables');
     return HttpResponse.internalServerError(
@@ -46,7 +45,6 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
     accountId: accountId,
   });
 
-  // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
   const projectRepository: ProjectRepository = new DynamodbProjectRepository(
     region,
     tableName,

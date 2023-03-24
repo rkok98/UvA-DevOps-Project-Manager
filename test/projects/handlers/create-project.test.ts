@@ -1,11 +1,11 @@
 import handler from '../../../src/projects/handlers/create-project-handler';
 import { APIGatewayProxyResult, Callback } from 'aws-lambda';
-import { HttpResponse } from '../../../src/util/http-response';
+import { HttpResponse } from '../../../src/http-util/http-response';
 import {
   mockContext,
   mockEvent,
   mockRequestContext,
-} from '../../util/handler-utils';
+} from '../../fixtures/lambda-handler-fixtures';
 import { mockClient } from 'aws-sdk-client-mock';
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 
@@ -107,6 +107,36 @@ describe('Create Projects Handler Integration Tests', () => {
     expect(res).toEqual(
       HttpResponse.badRequest('Request body cannot be empty')
     );
+  });
+
+  test('Internal Server Error is returned when something goes wrong within DynamoDB', async () => {
+    const event = {
+      ...mockEvent,
+      requestContext: {
+        ...mockRequestContext,
+        authorizer: {
+          claims: {
+            sub: 'test-admin-id',
+          },
+        },
+      },
+      body: JSON.stringify({
+        name: 'Test project',
+        description: 'Test description',
+      }),
+    };
+
+    const errorMessage = 'Something goes wrong';
+
+    ddbMock.on(PutItemCommand).rejects(new Error(errorMessage));
+
+    const res = await handler(
+      event,
+      mockContext,
+      {} as Callback<APIGatewayProxyResult>
+    );
+
+    expect(res).toEqual(HttpResponse.internalServerError(errorMessage));
   });
 
   test('Successful returns created', async () => {

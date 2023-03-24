@@ -2,7 +2,7 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
 import { Project } from '../models/project';
 import { ProjectRepository } from '../services/project-repository';
-import { HttpResponse } from '../../util/http-response';
+import { HttpResponse } from '../../http-util/http-response';
 import { DynamodbProjectRepository } from '../services/dynamodb-project-repository';
 import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
 import middy from '@middy/core';
@@ -48,8 +48,8 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
 
   const projectId = event.pathParameters?.project_id;
   if (!projectId) {
-    logger.error('Project id cannot be empty');
-    return HttpResponse.badRequest('Project id cannot be empty');
+    logger.error('Project ID cannot be empty');
+    return HttpResponse.badRequest('Project ID cannot be empty');
   }
 
   if (!event.body) {
@@ -69,7 +69,7 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
 
   return projectRepository
     .updateProject(project)
-    .then(() => HttpResponse.updated())
+    .then(() => HttpResponse.noContent())
     .catch((error: Error) => {
       logger.error(error.message);
       return HttpResponse.internalServerError(error.message);

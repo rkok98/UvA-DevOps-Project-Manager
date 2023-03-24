@@ -3,7 +3,7 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
 import { Task } from '../models/task';
 import { TaskRepository } from '../services/task-repository';
-import { HttpResponse } from '../../util/http-response';
+import { HttpResponse } from '../../http-util/http-response';
 import { DynamodbTaskRepository } from '../services/dynamodb-task-repository';
 import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
 import middy from '@middy/core';
@@ -57,7 +57,6 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.badRequest('Task ID must be specified');
   }
 
-  // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
   const taskRepository: TaskRepository = new DynamodbTaskRepository(
     region,
     tableName,

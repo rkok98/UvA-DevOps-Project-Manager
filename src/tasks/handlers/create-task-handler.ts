@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
-import { HttpResponse } from '../../util/http-response';
+import { HttpResponse } from '../../http-util/http-response';
 import { randomUUID } from 'crypto';
 import { CreateTaskBody } from '../models/create-task-body';
 import { Task } from '../models/task';
@@ -36,14 +36,15 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
     );
   }
 
-  if (!event.requestContext.authorizer?.claims?.sub) {
+  const accountId = event.requestContext.authorizer?.claims?.sub as string;
+
+  if (!accountId) {
     logger.error('No provided sub', {
       authorizer: event.requestContext.authorizer,
     });
     return HttpResponse.internalServerError('Something went wrong');
   }
 
-  const accountId = event.requestContext.authorizer?.claims?.sub as string;
   logger.addPersistentLogAttributes({
     accountId: accountId,
   });
@@ -65,11 +66,11 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
   const task: Task = {
     id: randomUUID(),
     projectId: projectIdPath,
-    adminId: accountId!,
+    adminId: accountId,
     title,
     description,
     dateTime: Date.now().toString(),
-    createdBy: accountId!,
+    createdBy: accountId,
     state,
   };
 

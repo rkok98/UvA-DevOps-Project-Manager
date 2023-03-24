@@ -1,11 +1,11 @@
 import handler from '../../../src/projects/handlers/update-project-handler';
 import { APIGatewayProxyResult, Callback } from 'aws-lambda';
-import { HttpResponse } from '../../../src/util/http-response';
+import { HttpResponse } from '../../../src/http-util/http-response';
 import {
   mockContext,
   mockEvent,
   mockRequestContext,
-} from '../../util/handler-utils';
+} from '../../fixtures/lambda-handler-fixtures';
 import { mockClient } from 'aws-sdk-client-mock';
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 
@@ -87,6 +87,31 @@ describe('Update Projects Handler Integration Tests', () => {
     );
   });
 
+  test('Missing Project ID in URL Path Parameters returns Bad Request', async () => {
+    const event = {
+      ...mockEvent,
+      requestContext: {
+        ...mockRequestContext,
+        authorizer: {
+          claims: {
+            sub: 'test-admin-id',
+          },
+        },
+      },
+      pathParameters: {
+        project_id: undefined,
+      },
+    };
+
+    const res = await handler(
+      event,
+      mockContext,
+      {} as Callback<APIGatewayProxyResult>
+    );
+
+    expect(res).toEqual(HttpResponse.badRequest('Project ID cannot be empty'));
+  });
+
   test('Empty body returns bad request', async () => {
     const event = {
       ...mockEvent,
@@ -114,6 +139,39 @@ describe('Update Projects Handler Integration Tests', () => {
     );
   });
 
+  test('Internal Server Error is returned when something goes wrong within DynamoDB', async () => {
+    const event = {
+      ...mockEvent,
+      requestContext: {
+        ...mockRequestContext,
+        authorizer: {
+          claims: {
+            sub: 'test-admin-id',
+          },
+        },
+      },
+      pathParameters: {
+        project_id: 'test-id',
+      },
+      body: JSON.stringify({
+        name: 'noContent-test-name',
+        description: 'noContent-test-description',
+      }),
+    };
+
+    const errorMessage = 'Something goes wrong';
+
+    ddbMock.on(PutItemCommand).rejects(new Error(errorMessage));
+
+    const res = await handler(
+      event,
+      mockContext,
+      {} as Callback<APIGatewayProxyResult>
+    );
+
+    expect(res).toEqual(HttpResponse.internalServerError(errorMessage));
+  });
+
   test('Successful returns created', async () => {
     const event = {
       ...mockEvent,
@@ -129,8 +187,8 @@ describe('Update Projects Handler Integration Tests', () => {
         project_id: 'test-id',
       },
       body: JSON.stringify({
-        name: 'updated-test-name',
-        description: 'updated-test-description',
+        name: 'noContent-test-name',
+        description: 'noContent-test-description',
       }),
     };
 
@@ -142,6 +200,6 @@ describe('Update Projects Handler Integration Tests', () => {
       {} as Callback<APIGatewayProxyResult>
     );
 
-    expect(res).toEqual(HttpResponse.updated());
+    expect(res).toEqual(HttpResponse.noContent());
   });
 });

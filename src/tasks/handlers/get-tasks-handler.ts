@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
 import { TaskRepository } from '../services/task-repository';
-import { HttpResponse } from '../../util/http-response';
+import { HttpResponse } from '../../http-util/http-response';
 import { DynamodbTaskRepository } from '../services/dynamodb-task-repository';
 import middy from '@middy/core';
 import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
@@ -48,7 +48,6 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event) => {
     return HttpResponse.badRequest('Project ID cannot be empty');
   }
 
-  // Create an instance of DynamodbProjectRepository to interact with the DynamoDB table
   const taskRepository: TaskRepository = new DynamodbTaskRepository(
     region,
     tableName,

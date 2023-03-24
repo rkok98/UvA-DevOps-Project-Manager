@@ -1,16 +1,14 @@
-# Welcome to your CDK TypeScript project
+# SprintVision
 
-This is a blank project for CDK development with TypeScript.
+An application used to create scrum boards for development teams to integrate into their agile workflow. 
+Built with AWS.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-## Usage
-
-1. Copy the contents of `cdk.context.json.dist` to `cdk.context.json` and change `<YOUR_NAME>` to your first name in lowercase.
+## Installation
+1. Install the required dependencies with `npm install`.
+2. Copy the contents of `cdk.context.json.dist` to `cdk.context.json` and change `<YOUR_NAME>` to your first name in lowercase.
    For example: rene-dev or tessa-dev.
 
-## Useful commands
-
+## Usage
 - `npm run build` compile typescript to js
 - `npm run watch` watch for changes and compile
 - `npm run test` perform the jest unit tests
@@ -19,7 +17,7 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 - `cdk synth` emits the synthesized CloudFormation template
 
 ## Useful urls
-
+Some useful URLs for this project:
 - AWS SDK: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/
 - AWS CDK: https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html
 

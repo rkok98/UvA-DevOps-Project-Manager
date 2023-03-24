@@ -1,11 +1,11 @@
 import handler from '../../../src/tasks/handlers/update-task-handler';
 import { APIGatewayProxyResult, Callback } from 'aws-lambda';
-import { HttpResponse } from '../../../src/util/http-response';
+import { HttpResponse } from '../../../src/http-util/http-response';
 import {
   mockContext,
   mockEvent,
   mockRequestContext,
-} from '../../util/handler-utils';
+} from '../../fixtures/lambda-handler-fixtures';
 import { mockClient } from 'aws-sdk-client-mock';
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 
@@ -116,7 +116,7 @@ describe('Update Projects Handler Integration Tests', () => {
     );
   });
 
-  test('Successful returns updated', async () => {
+  test('Successful returns noContent', async () => {
     const event = {
       ...mockEvent,
       requestContext: {
@@ -132,8 +132,8 @@ describe('Update Projects Handler Integration Tests', () => {
         task_id: 'test-task-id',
       },
       body: JSON.stringify({
-        title: 'updated-task-test-name',
-        description: 'updated-test-description',
+        title: 'noContent-task-test-name',
+        description: 'noContent-test-description',
       }),
     };
 
@@ -145,6 +145,6 @@ describe('Update Projects Handler Integration Tests', () => {
       {} as Callback<APIGatewayProxyResult>
     );
 
-    expect(res).toEqual(HttpResponse.updated());
+    expect(res).toEqual(HttpResponse.noContent());
   });
 });

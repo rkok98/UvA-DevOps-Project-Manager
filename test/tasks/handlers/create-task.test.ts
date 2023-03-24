@@ -1,11 +1,11 @@
 import handler from '../../../src/tasks/handlers/create-task-handler';
 import { APIGatewayProxyResult, Callback } from 'aws-lambda';
-import { HttpResponse } from '../../../src/util/http-response';
+import { HttpResponse } from '../../../src/http-util/http-response';
 import {
   mockContext,
   mockEvent,
   mockRequestContext,
-} from '../../util/handler-utils';
+} from '../../fixtures/lambda-handler-fixtures';
 import { mockClient } from 'aws-sdk-client-mock';
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 

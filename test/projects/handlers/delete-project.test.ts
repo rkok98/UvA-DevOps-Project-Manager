@@ -1,11 +1,11 @@
 import handler from '../../../src/projects/handlers/delete-project-handler';
 import { APIGatewayProxyResult, Callback } from 'aws-lambda';
-import { HttpResponse } from '../../../src/util/http-response';
+import { HttpResponse } from '../../../src/http-util/http-response';
 import {
   mockContext,
   mockEvent,
   mockRequestContext,
-} from '../../util/handler-utils';
+} from '../../fixtures/lambda-handler-fixtures';
 import { mockClient } from 'aws-sdk-client-mock';
 import {
   DeleteItemCommand,
@@ -152,6 +152,46 @@ describe('Delete Projects Handler Integration Tests', () => {
         'Unauthorized to remove this project as you do not belong to this project'
       )
     );
+  });
+
+  test('Internal Server Error is returned when something goes wrong within DynamoDB', async () => {
+    const event = {
+      ...mockEvent,
+      requestContext: {
+        ...mockRequestContext,
+        authorizer: {
+          claims: {
+            sub: 'test-admin-id',
+          },
+        },
+      },
+      pathParameters: {
+        project_id: 'test-id',
+      },
+    };
+
+    const errorMessage = 'Something goes wrong';
+
+    ddbMock
+      .on(GetItemCommand)
+      .resolves({
+        Item: {
+          id: { S: 'test-id' },
+          name: { S: 'test-name' },
+          description: { S: 'test-description' },
+          adminId: { S: 'test-admin-id' },
+        },
+      })
+      .on(DeleteItemCommand)
+      .rejects(new Error(errorMessage));
+
+    const res = await handler(
+      event,
+      mockContext,
+      {} as Callback<APIGatewayProxyResult>
+    );
+
+    expect(res).toEqual(HttpResponse.internalServerError(errorMessage));
   });
 
   test('Successfully returns deleted', async () => {
